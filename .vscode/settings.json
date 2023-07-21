@@ -1,6 +1,7 @@
 {
     "python.testing.pytestArgs": [
-        "."
+        ".",
+        "-s"
     ],
     "[python]": {
         "editor.formatOnSave": true,

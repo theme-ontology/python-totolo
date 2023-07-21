@@ -154,11 +154,13 @@ class TOParser:
 
     @classmethod
     def make_story(cls, lines):
-        return cls.populate_entry(TOStory(), lines)
+        story = cls.populate_entry(TOStory(), lines)
+        return story
 
     @classmethod
     def make_theme(cls, lines):
-        return cls.populate_entry(TOTheme(), lines)
+        theme = cls.populate_entry(TOTheme(), lines)
+        return theme
 
     @classmethod
     def parse_stories(cls, lines):
@@ -205,13 +207,13 @@ class TOParser:
         for path in paths:
             if os.path.isdir(path):
                 for filepath in totolo.lib.files.walk(path, r".*\.(st|th)\.txt$"):
-                    cls.add_file(to, filepath)
+                    cls._add_file(to, filepath)
             else:
-                cls.add_file(to, path)
-        return to
+                cls._add_file(to, path)
+        return to.refresh_relations()
 
     @classmethod
-    def add_file(cls, to, path):
+    def _add_file(cls, to, path):
         target = {}
         with open(path, "r", encoding='utf-8') as fh:
             entry_iterable = []

@@ -11,6 +11,12 @@ class TOTheme(TOEntry):
     Aliases = sa("list")
     Template = sa("blob")
 
+    def _lookup(self):
+        try:
+            return self.ontology.theme
+        except AttributeError:
+            return {}
+
     def verbose_description(self):
         description = str(self.get("Description"))
         examples = str(self.get("Examples")).strip()

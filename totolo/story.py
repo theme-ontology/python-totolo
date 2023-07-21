@@ -21,6 +21,12 @@ class TOStory(TOEntry):
     Not_Themes = sa("kwlist")
     Other_Keywords = sa("kwlist")
 
+    def _lookup(self):
+        try:
+            return self.ontology.story
+        except AttributeError:
+            return {}
+
     def iter_theme_entries(self):
         """
         Yield (weight, TOKeyword) pairs. TOKeyword contains the comment and other

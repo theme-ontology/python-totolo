@@ -5,9 +5,15 @@ from collections import defaultdict
 from .impl.core import TOObject, a
 
 
+class TODict(dict):
+    def ancestors(self, items):
+        for item in items:
+            yield item  # TODO: implement
+
+
 class ThemeOntology(TOObject):
-    theme = a({})
-    story = a({})
+    theme = a(TODict())
+    story = a(TODict())
     entries = a({})
 
     def __len__(self):
@@ -29,6 +35,17 @@ class ThemeOntology(TOObject):
 
     def atheme(self):
         return random.sample(self.theme.values(), 1)[0]
+
+    def dataframe(self, implied_themes=True):
+        import pandas as pd
+        data = []
+        for story in self.stories():
+            for weight, part in self.iter_theme_entries():
+                themes = [part.keyword]
+                if implied_themes:
+                    themes.extend(self.ancestors(list(themes)))
+                data.append([story.name, story["Title"],
+                            story["Date"], part.keyword, weight])
 
     def validate(self):
         yield from self.validate_entries()
@@ -102,3 +119,31 @@ class ThemeOntology(TOObject):
         """
         for msg in self.validate():
             print(msg)
+        return self
+
+    def refresh_relations(self):
+        """
+        The ontology keeps track of parent/child relations in order to facilitate
+        quicker traversal of this hierarchy in both directions, for both themes
+        and stories. This method is invoked when the ontology has changed. It is
+        invoked automatically by the parser and usually doesn't need to be invoked
+        manually.
+        """
+        for theme in self.themes():
+            theme.parents.clear()
+            theme.children.clear()
+        for story in self.stories():
+            story.parents.clear()
+            story.children.clear()
+        for theme in self.themes():
+            for ptheme_name in theme["Parents"]:
+                theme.parents.add(ptheme_name)
+                self.theme[ptheme_name].children.add(theme.name)
+        for story in self.stories():
+            for pstory_name in theme["Collections"]:
+                story.parents.add(pstory_name)
+                self.story[pstory_name].children.add(story.name)
+            for cstory_name in theme["Component Stories"]:
+                story.children.add(cstory_name)
+                self.story[cstory_name].parents.add(story.name)
+        return self

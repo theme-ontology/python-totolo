@@ -5,10 +5,9 @@ from .field import TOField
 class TOEntry(TOObject):
     name = a("")
     fields = a([])
+    parents = a(set())
+    children = a(set())
     source = a([])
-    parents = a([])
-    children = a([])
-    links = a([])
     source_location = a("<api>)")
 
     def __str__(self):
@@ -29,6 +28,28 @@ class TOEntry(TOObject):
                 fieldtype = self.field_type(fieldname)
                 if fieldtype != "unknown" or not skipunknown:
                     yield field
+
+    def _lookup(self):
+        return {}
+
+    def _dfs(self, attr, lookup):
+        visited = set()
+        pending = [self.name]
+        visited.update(pending)
+        while pending:
+            name = pending.pop()
+            yield name
+            item = lookup[name]
+            for nitem in getattr(item, attr):
+                if nitem not in visited:
+                    pending.append(nitem)
+                    visited.add(nitem)
+
+    def ancestors(self):
+        yield from self._dfs("parents", self._lookup())
+
+    def descendants(self):
+        yield from self._dfs("children", self._lookup())
 
     def validate(self):
         junklines = []
