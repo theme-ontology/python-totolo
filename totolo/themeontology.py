@@ -1,4 +1,5 @@
 import codecs
+import os.path
 import random
 from collections import defaultdict
 
@@ -6,15 +7,14 @@ from .impl.core import TOObject, a
 
 
 class TODict(dict):
-    def ancestors(self, items):
-        for item in items:
-            yield item  # TODO: implement
+    pass
 
 
 class ThemeOntology(TOObject):
     theme = a(TODict())
     story = a(TODict())
     entries = a({})
+    basepaths = a(set())
 
     def __len__(self):
         return sum(len(v) for v in self.entries.values())
@@ -58,20 +58,19 @@ class ThemeOntology(TOObject):
         for path, entries in self.entries.items():
             for entry in entries:
                 for warning in entry.validate():
-                    yield u"{}: {}".format(path, warning)
+                    yield f"{path}: {warning}"
                 if entry.name in lookup[type(entry)]:
-                    yield u"{}: Multiple {} with name '{}'".format(
-                        path, type(entry), entry.name)
+                    yield f"{path}: Multiple {type(entry)} with name '{entry.name}'"
 
     def validate_storythemes(self):
         """Detect undefined themes used in stories."""
         for story in self.stories():
             for weight in ["choice", "major", "minor", "not"]:
-                field = "{} Themes".format(weight.capitalize())
+                field = f"{weight.capitalize()} Themes"
                 for kw in story.get(field):
                     if kw.keyword not in self.theme:
-                        yield u"{}: Undefined '{} theme' with name '{}'".format(
-                            story.name, weight, kw.keyword)
+                        name, kw = story.name, kw.keyword
+                        yield f"{name}: Undefined '{weight} theme' with name '{kw}'"
 
     def validate_cycles(self):
         """Detect cycles (stops after first cycle encountered)."""
@@ -82,7 +81,8 @@ class ThemeOntology(TOObject):
         def dfs(current, tpath=None):
             tpath = tpath or []
             if current in tpath:
-                return u"Cycle: {}".format(tpath[tpath.index(current):])
+                cycle = tpath[tpath.index(current):]
+                return f"Cycle: {cycle}"
             else:
                 tpath.append(current)
                 for parent in parents[current]:
@@ -103,15 +103,17 @@ class ThemeOntology(TOObject):
         Write the ontology back to its source file while cleaning up syntax and
         omitting unknown field names.
         """
+        self.write(verbose=verbose)
+
+    def write(self, prefix=None, cleaned=False, verbose=False):
+        old_prefix = "" if prefix is None else os.path.commonpath(self.basepaths)
         for path, entries in self.entries.items():
-            lines = []
-            for entry in entries:
-                lines.append(entry.text_canonical())
-                lines.append("")
-            with codecs.open(path, "w", encoding='utf-8') as fh:
-                if verbose:
-                    print(path)
-                fh.writelines(x + "\n" for x in lines)
+            if prefix is not None:
+                rel_path = os.path.relpath(path, old_prefix)
+                path = os.path.join(prefix, rel_path)
+            self._writefile(path, entries, cleaned)
+            if verbose:
+                print(f"wrote: {path}")
 
     def print_warnings(self):
         """
@@ -137,13 +139,26 @@ class ThemeOntology(TOObject):
             story.children.clear()
         for theme in self.themes():
             for ptheme_name in theme["Parents"]:
-                theme.parents.add(ptheme_name)
-                self.theme[ptheme_name].children.add(theme.name)
+                if ptheme_name in self.theme:
+                    theme.parents.add(ptheme_name)
+                    self.theme[ptheme_name].children.add(theme.name)
         for story in self.stories():
-            for pstory_name in theme["Collections"]:
-                story.parents.add(pstory_name)
-                self.story[pstory_name].children.add(story.name)
-            for cstory_name in theme["Component Stories"]:
-                story.children.add(cstory_name)
-                self.story[cstory_name].parents.add(story.name)
+            for pstory_name in story["Collections"]:
+                if pstory_name in self.story:
+                    story.parents.add(pstory_name)
+                    self.story[pstory_name].children.add(story.name)
+            for cstory_name in story["Component Stories"]:
+                if cstory_name in self.story:
+                    story.children.add(cstory_name)
+                    self.story[cstory_name].parents.add(story.name)
         return self
+
+    def _writefile(self, path, entries, cleaned):
+        dirname = os.path.dirname(path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        with open(path, "w", encoding='utf-8') as fh:
+            for entry in entries:
+                lines = entry.text_canonical() if cleaned else entry.text_original()
+                fh.write(lines)
+                fh.write("\n\n")

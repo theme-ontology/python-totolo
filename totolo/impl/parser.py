@@ -145,11 +145,7 @@ class TOParser:
             name = fieldlines[0].strip(": ")
             fieldtype = entry.field_type(name)
             field = cls.make_field(fieldlines, fieldtype)
-            entry.fields.append(field)
-            if fieldtype in ("list", "kwlist"):
-                entry[field.name] = field.parts
-            elif fieldtype != "unknown":
-                entry[field.name] = field.text_canonical_contents().strip()
+            entry[field.name] = field
         return entry
 
     @classmethod
@@ -205,6 +201,7 @@ class TOParser:
         if isinstance(paths, str):
             paths = [paths]
         for path in paths:
+            to.basepaths.add(path)
             if os.path.isdir(path):
                 for filepath in totolo.lib.files.walk(path, r".*\.(st|th)\.txt$"):
                     cls._add_file(to, filepath)

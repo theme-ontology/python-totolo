@@ -1,10 +1,12 @@
+from collections import OrderedDict
+
 from .core import TOObject, a
 from .field import TOField
 
 
 class TOEntry(TOObject):
     name = a("")
-    fields = a([])
+    fields = a(OrderedDict())
     parents = a(set())
     children = a(set())
     source = a([])
@@ -16,34 +18,26 @@ class TOEntry(TOObject):
             len(self.fields)
         )
 
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __setitem__(self, key, value):
+        self.fields[key] = value
+
+    def __delitem__(self, key):
+        del self.fields[key]
+
     def iter_fields(self, reorder=False, skipunknown=False):
-        lu = {f.name: f for f in self.fields}
         if reorder:
-            order = [f for f, _ in self.iter_stored() if f in lu]
+            order = [fn for fn, _ in self.iter_stored()]
         else:
-            order = [f.name for f in self.fields]
+            order = self.fields.keys()
         for fieldname in order:
-            field = lu.get(fieldname, None)
-            if field:
+            field = self.fields.get(fieldname, None)
+            if field is not None:
                 fieldtype = self.field_type(fieldname)
                 if fieldtype != "unknown" or not skipunknown:
                     yield field
-
-    def _lookup(self):
-        return {}
-
-    def _dfs(self, attr, lookup):
-        visited = set()
-        pending = [self.name]
-        visited.update(pending)
-        while pending:
-            name = pending.pop()
-            yield name
-            item = lookup[name]
-            for nitem in getattr(item, attr):
-                if nitem not in visited:
-                    pending.append(nitem)
-                    visited.add(nitem)
 
     def ancestors(self):
         yield from self._dfs("parents", self._lookup())
@@ -63,10 +57,10 @@ class TOEntry(TOObject):
             junkmsg = '/'.join(junklines)
             if len(junkmsg) > 13:
                 junkmsg = junkmsg[:10] + "..."
-            yield u"{}: junk in entry header: {}".format(self.name, junkmsg)
-        for field in self.fields:
+            yield f"{self.name}: junk in entry header: {junkmsg}"
+        for field in self.fields.values():
             if self.field_type(field.name) == "unknown":
-                yield u"{}: unknown field '{}'".format(self.name, field.name)
+                yield f"{self.name}: unknown field '{field.name}'"
 
     def text_canonical(self):
         lines = [self.name, "=" * len(self.name), ""]
@@ -75,13 +69,37 @@ class TOEntry(TOObject):
             lines.append("")
         return "\n".join(lines)
 
+    def text_original(self):
+        lines = [self.name, "=" * len(self.name), ""]
+        for field in self.iter_fields(reorder=False, skipunknown=False):
+            lines.append(field.text_canonical())
+            lines.append("")
+        return "\n".join(lines)
+
     def get(self, fieldname):
-        for field in self.fields:
-            if field.name == fieldname:
-                return field
+        field = self.fields.get(fieldname, None)
+        if field is not None:
+            return field
         fieldtype = self.field_type(fieldname)
-        self.fields.append(TOField(fieldtype=fieldtype, name=fieldname))
-        return self.fields[-1]
+        field = TOField(fieldtype=fieldtype, name=fieldname)
+        self.fields[fieldname] = field
+        return field
 
     def print(self):
         print(self.text_canonical().strip())
+
+    def _lookup(self):
+        return {}
+
+    def _dfs(self, attr, lookup):
+        visited = set()
+        pending = [self.name]
+        visited.update(pending)
+        while pending:
+            name = pending.pop()
+            yield name
+            item = lookup[name]
+            for nitem in getattr(item, attr):
+                if nitem not in visited:
+                    pending.append(nitem)
+                    visited.add(nitem)

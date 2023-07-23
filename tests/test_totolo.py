@@ -1,7 +1,9 @@
+import tempfile
+
 import totolo
 
 
-class TestCreation:
+class TestIO:
     def test_empty(self):
         to = totolo.empty()
         assert len(to) == 0
@@ -21,8 +23,56 @@ class TestCreation:
         to.print_warnings()
         assert len(to) > 3
 
+    def test_theme_attributes(self):
+        to = totolo.files("tests/data/to-2023.07.09.th.txt")
+        t = to.theme["coping with senility"]
+        t.print()
+        assert t.name == "coping with senility"
+        assert t["Description"].str().startswith(
+            "A character copes with a loss of their mental faculties")
+        assert t["Parents"].list() == ["human health condition"]
+        assert t["Notes"].str().startswith(
+            "This theme is used for example when")
+        assert t["Examples"].str().startswith(
+            'In tng3x23 "Sarek", Sarek coped')
+        assert t["References"].list() == ["https://en.wikipedia.org/wiki/Dementia"]
+        assert t["Aliases"].list() == ["coping with dementia"]
 
-class TestFunctions:
+    def test_story_attributes(self):
+        name = "play: The Taming of the Shrew (1592)"
+        to = totolo.files("tests/data/to-sample-2023.07.09.st.txt")
+        s = to.story[name]
+        s.print()
+        assert s.name == name
+        assert s.sid == name
+        assert s["Title"].str() == "The Taming of the Shrew"
+        assert s["Date"].str() == "1592"
+        assert s.date == "1592"
+        assert s.year == 1592
+        assert "a drunken tinker named Christopher Sly" in s["Description"].str()
+        assert s["Authors"].str() == "William Shakespeare"
+        assert s["References"].list() == [
+            "https://en.wikipedia.org/wiki/The_Taming_of_the_Shrew"
+        ]
+        assert s["Ratings"].list() == ["4 <mikael>"]
+        assert s["Collections"].list() == []
+
+    def test_fetch_and_write(self):
+        print("Downloading master...")
+        to = totolo.remote()
+        with tempfile.TemporaryDirectory() as prefix:
+            print(f"Writing to: {prefix}")
+            to.write(prefix=prefix, verbose=True)
+            print(f"Reading from: {prefix}")
+            to2 = totolo.files(prefix)
+            assert len(to) == len(to2)
+            assert len(to.theme) == len(to2.theme)
+            assert len(to.story) == len(to2.story)
+
+    def test_fetch_and_write(self):
+
+
+class TestFeatures:
     def test_theme_ancestors(self):
         to = totolo.files("tests/data/to-2023.07.09.th.txt")
         themes = list(to.theme["love"].ancestors())
@@ -64,6 +114,17 @@ class TestFunctions:
             'matrimonial love',
             'filial love',
         ])
+
+    def test_story_ancestors(self):
+        to = totolo.files("tests/data/storytree.st.txt")
+        stories = list(to.story["Collection: B2"].ancestors())
+        assert set(stories) == set(
+            ['Collection: B2', 'Collection: A', 'Collection: B1'])
+
+    def test_story_descendants(self):
+        to = totolo.files("tests/data/storytree.st.txt")
+        stories = list(to.story["Collection: B2"].descendants())
+        assert set(stories) == set(['Collection: B2', 'story: C'])
 
 
 class TestValidation:

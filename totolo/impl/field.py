@@ -23,6 +23,12 @@ class TOField(TOObject):
         for part in self.iter_parts():
             yield part
 
+    def str(self):
+        return str(self)
+
+    def list(self):
+        return list(self.parts)
+
     def iter_parts(self):
         """
         Iterater over components in the data of this field.
@@ -36,16 +42,16 @@ class TOField(TOObject):
             A text blob representing the contents of this field in its canonical format.
         """
         parts = [str(x) for x in self.iter_parts()]
-        return u'\n'.join(parts)
+        return "\n".join(parts)
 
     def text_canonical(self):
         """
         Returns:
             A text blob representing this field in its canonical format.
         """
-        parts = [u":: {}".format(self.name)]
+        parts = [f":: {self.name}"]
         parts.extend(str(x) for x in self.iter_parts())
-        return u'\n'.join(parts)
+        return "\n".join(parts)
 
     def delete(self, kw):
         """

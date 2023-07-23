@@ -3,13 +3,16 @@ from copy import deepcopy
 
 
 class TOAttr:
-    def __init__(self, default=""):
+    def __init__(self, default="", private=False):
         self.default = default
+        self.private = private
 
 
 class TOStoredAttr(TOAttr):
-    def __init__(self, datatype="blob", default="", required=False):
-        super().__init__(default)
+    def __init__(self, datatype="blob", default=None, required=False):
+        if default is None:
+            default = [] if "list" in datatype else ""
+        super().__init__(default, True)
         self.datatype = datatype
         self.required = required
 
@@ -31,7 +34,7 @@ class TOObjectMeta(type):
     def __call__(cls, *args, **kwargs):
         self = super().__call__(*args, **kwargs)
         for key, value in self._to_attrs.items():
-            if not hasattr(self, key):
+            if not value.private and not hasattr(self, key):
                 setattr(self, key, deepcopy(value.default))
         return self
 
@@ -58,12 +61,16 @@ class TOObject(metaclass=TOObjectMeta):
         self.get_attr = self._to_attrs.get
 
     def iter_attrs(self):
-        yield from self._to_attrs.items()
+        for key, value in self._to_attrs.items():
+            if isinstance(value, TOStoredAttr):
+                yield key.replace("_", " "), value
+            else:
+                yield key, value
 
     def iter_stored(self):
         for key, value in self.iter_attrs():
             if isinstance(value, TOStoredAttr):
-                yield key, value
+                yield key.replace("_", " "), value
 
     def field_type(self, key):
         key = key.replace(" ", "_")
@@ -73,21 +80,7 @@ class TOObject(metaclass=TOObjectMeta):
             return "unknown"
 
     def __str__(self):
-        return "[toobject]"
+        return "[TOObject]"
 
     def __repr__(self):
         return f'{type(self).__name__}<{str(self)}>'
-
-    def __getitem__(self, key):
-        key = key.replace(" ", "_")
-        attr = self._to_attrs.get(key, None)
-        if isinstance(attr, TOStoredAttr):
-            return getattr(self, key)
-        raise KeyError(f"{type(self).__name__} has no stored attribute {key}")
-
-    def __setitem__(self, key, value):
-        key = key.replace(" ", "_")
-        attr = self._to_attrs.get(key, None)
-        if isinstance(attr, TOStoredAttr):
-            return setattr(self, key, value)
-        raise KeyError(f"{type(self).__name__} has no stored attribute {key}")

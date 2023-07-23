@@ -14,7 +14,12 @@ def remote_tar(url: str):
         with urllib.request.urlopen(url) as response:
             with tarfile.open(name=None, fileobj=BytesIO(response.read())) as tar:
                 tar.extractall(dirname)
-        yield dirname
+        paths = [os.path.join(dirname, x) for x in os.listdir(dirname)]
+        # we expect a single (irrelevant) dir here as git wraps everything thus
+        if len(paths) == 1 and os.path.isdir(paths[0]):
+            yield paths[0]
+        else:
+            yield dirname
 
 
 def walk(path: str, pattern: str = ".*", levels: int = -1):

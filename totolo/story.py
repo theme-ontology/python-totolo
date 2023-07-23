@@ -5,8 +5,8 @@ from .impl.entry import TOEntry
 
 
 class TOStory(TOEntry):
-    Title = sa("text")
-    Date = sa("date")
+    Title = sa("text", required=True)
+    Date = sa("date", required=True)
     Description = sa("text")
     Authors = sa("blob")
     Variation = sa("blob")
@@ -79,18 +79,10 @@ class TOStory(TOEntry):
 
     @property
     def sid(self):
-        """
-        Shorthand for Story ID, ie. the name of the entry when the entry is a story
-        entry.
-        """
         return self.name
 
     @property
     def title(self):
-        """
-        The title of the story. This should always be present or the data entry is
-        faulty.
-        """
         return self.get("Title").text_canonical_contents().strip()
 
     def verbose_description(self):

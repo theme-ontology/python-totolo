@@ -9,7 +9,6 @@ class TOTheme(TOEntry):
     Examples = sa("text")
     References = sa("list")
     Aliases = sa("list")
-    Template = sa("blob")
 
     def _lookup(self):
         try:

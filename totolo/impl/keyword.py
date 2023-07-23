@@ -8,7 +8,7 @@ class TOKeyword(TOObject):
     notes = a("")
 
     def __str__(self):
-        pm = u" [{}]".format(self.motivation) if self.motivation else ""
-        pc = u" <{}>".format(self.capacity) if self.capacity else ""
-        pn = u" {{{}}}".format(self.notes) if self.notes else ""
-        return u"{}{}{}{}".format(self.keyword, pc, pm, pn)
+        capacity = f" <{self.capacity}>" if self.capacity else ""
+        motivation = f" [{self.motivation}]" if self.motivation else ""
+        notes = f" {{{self.notes}}}" if self.notes else ""
+        return f"{self.keyword}{capacity}{motivation}{notes}"

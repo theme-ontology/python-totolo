@@ -1,0 +1,63 @@
+Collection: A
+=============
+
+:: Title
+A
+
+:: Date
+1920-2017
+
+
+Collection: B1
+==============
+
+:: Title
+B1
+
+:: Date
+1920-2017
+
+:: Collections
+Collection: A
+
+
+Collection: B2
+==============
+
+:: Title
+B2
+
+:: Date
+1920-2017
+
+:: Collections
+Collection: A
+Collection: B1
+
+
+story: C
+========
+
+:: Title
+C
+
+:: Date
+1920-2017
+
+:: Collections
+Collection: B2
+
+
+story: D
+========
+
+:: Title
+D
+
+:: Date
+1920-2017
+
+:: Collections
+Collection: B1
+
+
