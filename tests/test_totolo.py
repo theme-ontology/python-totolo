@@ -1,6 +1,15 @@
+import difflib
+import os.path
 import tempfile
 
 import totolo
+
+
+def filediff(path1, path2):
+    with open(path1) as file1, open(path2) as file2:
+        for line in difflib.unified_diff(
+                file1.readlines(), file2.readlines(), n=0, lineterm=""):
+            yield line
 
 
 class TestIO:
@@ -59,17 +68,39 @@ class TestIO:
 
     def test_fetch_and_write(self):
         print("Downloading master...")
-        to = totolo.remote()
+        to1 = totolo.remote()
         with tempfile.TemporaryDirectory() as prefix:
             print(f"Writing to: {prefix}")
-            to.write(prefix=prefix, verbose=True)
+            to1.write(prefix=prefix, verbose=True)
             print(f"Reading from: {prefix}")
             to2 = totolo.files(prefix)
-            assert len(to) == len(to2)
-            assert len(to.theme) == len(to2.theme)
-            assert len(to.story) == len(to2.story)
+            assert len(to1) == len(to2)
+            assert len(to1.theme) == len(to2.theme)
+            assert len(to1.story) == len(to2.story)
 
-    def test_fetch_and_write(self):
+    def test_write_integrity(self):
+        prefix1 = "tests/data/sample-2023.07.23"
+        filenames = [
+            "notes/stories/film/film-scifi-1920s.st.txt",
+            "notes/themes/primary.th.txt",
+        ]
+        to1 = totolo.files(prefix1)
+        with tempfile.TemporaryDirectory() as prefix2:
+            print(f"Writing to: {prefix2}")
+            to1.write(prefix=prefix2, verbose=True)
+            print(f"Reading from: {prefix2}")
+            to2 = totolo.files(prefix2)
+            assert len(to1) == len(to2)
+            assert len(to1.theme) == len(to2.theme)
+            assert len(to1.story) == len(to2.story)
+            for suffix in filenames:
+                print(f"Comparing: {suffix}")
+                path1 = os.path.join(prefix1, suffix)
+                path2 = os.path.join(prefix2, suffix)
+                lines = list(filediff(path1, path2))
+                for line in lines:
+                    print(line, end="")
+                assert (len(lines) == 0)
 
 
 class TestFeatures:

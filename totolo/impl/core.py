@@ -25,7 +25,11 @@ class TOObjectMeta(type):
                 if key not in attr:
                     to_attrs[key] = value
         for key, value in list(attr.items()):
-            if isinstance(value, TOAttr):
+            if isinstance(value, TOStoredAttr):
+                nkey = key.replace("_", " ")
+                to_attrs[nkey] = value
+                del attr[key]
+            elif isinstance(value, TOAttr):
                 to_attrs[key] = value
                 del attr[key]
         attr["_to_attrs"] = to_attrs
@@ -62,18 +66,20 @@ class TOObject(metaclass=TOObjectMeta):
 
     def iter_attrs(self):
         for key, value in self._to_attrs.items():
-            if isinstance(value, TOStoredAttr):
-                yield key.replace("_", " "), value
-            else:
-                yield key, value
+            yield key, value
 
     def iter_stored(self):
         for key, value in self.iter_attrs():
             if isinstance(value, TOStoredAttr):
-                yield key.replace("_", " "), value
+                yield key, value
 
     def field_type(self, key):
-        key = key.replace(" ", "_")
+        try:
+            return self.get_attr(key).datatype
+        except (KeyError, AttributeError) as _e:
+            return "unknown"
+
+    def field_required(self, key):
         try:
             return self.get_attr(key).datatype
         except (KeyError, AttributeError) as _e:

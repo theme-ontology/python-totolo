@@ -65,8 +65,9 @@ class TOEntry(TOObject):
     def text_canonical(self):
         lines = [self.name, "=" * len(self.name), ""]
         for field in self.iter_fields(reorder=True, skipunknown=True):
-            lines.append(field.text_canonical())
-            lines.append("")
+            if self.field_required(field.name) or not field.empty():
+                lines.append(field.text_canonical())
+                lines.append("")
         return "\n".join(lines)
 
     def text_original(self):
@@ -77,6 +78,15 @@ class TOEntry(TOObject):
         return "\n".join(lines)
 
     def get(self, fieldname):
+        """Get field, returning a frozen default field if it doesn't exist."""
+        field = self.fields.get(fieldname, None)
+        if field is not None:
+            return field
+        fieldtype = self.field_type(fieldname)
+        return TOField(fieldtype=fieldtype, name=fieldname).freeze()
+
+    def setdefault(self, fieldname):
+        """Get field, creating it first if it doesn't exist."""
         field = self.fields.get(fieldname, None)
         if field is not None:
             return field

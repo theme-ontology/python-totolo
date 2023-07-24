@@ -1,4 +1,4 @@
-import codecs
+import copy
 import os.path
 import random
 from collections import defaultdict
@@ -67,9 +67,9 @@ class ThemeOntology(TOObject):
         for story in self.stories():
             for weight in ["choice", "major", "minor", "not"]:
                 field = f"{weight.capitalize()} Themes"
-                for kw in story.get(field):
-                    if kw.keyword not in self.theme:
-                        name, kw = story.name, kw.keyword
+                for kwf in story.get(field):
+                    if kwf.keyword not in self.theme:
+                        name, kw = story.name, kwf.keyword
                         yield f"{name}: Undefined '{weight} theme' with name '{kw}'"
 
     def validate_cycles(self):
@@ -158,7 +158,13 @@ class ThemeOntology(TOObject):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         with open(path, "w", encoding='utf-8') as fh:
-            for entry in entries:
+            sids = set(e.name for e in entries)
+            for idx, entry in enumerate(entries):
+                if idx == 0 and entry.name in entry["Collections"]:
+                    entry = copy.deepcopy(entry)
+                    field = entry["Component Stories"]
+                    parts = [x for x in field.parts if x == entry.name or x not in sids]
+                    field.parts = parts
                 lines = entry.text_canonical() if cleaned else entry.text_original()
                 fh.write(lines)
                 fh.write("\n\n")

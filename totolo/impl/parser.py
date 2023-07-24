@@ -171,7 +171,7 @@ class TOParser:
                 if mycols and mycols[0] == entry.sid:
                     collection_entry = entry
             if idx > 0 and collection_entry:
-                field = collection_entry.get("Component Stories")
+                field = collection_entry.setdefault("Component Stories")
                 field.parts.append(entry.sid)
             entries.append(entry)
         return entries

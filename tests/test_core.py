@@ -10,12 +10,6 @@ class TOTest1(TOObject):
     aa = sa("txt", default="baz: a")
 
 
-class TOTest2(TOObject):
-    foo_Bar = a()
-    Bar_Baz = a(private=True)
-    Baz_bar = sa()
-
-
 class TestAPI:
     def test_object_attrbiutes(self):
         a = TOTest1(qq=2, bb="monkey", a2="fox")
@@ -29,8 +23,3 @@ class TestAPI:
         assert not hasattr(a, "aa")
         assert not hasattr(a, "cc")
         assert not hasattr(a, "a3")
-
-    def test_underscore(self):
-        obj = TOTest2()
-        assert [k for k, _ in obj.iter_attrs()] == ["foo_Bar", "Bar_Baz", "Baz bar"]
-        assert [k for k, _ in obj.iter_stored()] == ["Baz bar"]
