@@ -23,7 +23,7 @@ class TOStory(TOEntry):
 
     def _lookup(self):
         try:
-            return self.ontology.story
+            return self.ontology().story
         except AttributeError:
             return {}
 
@@ -45,7 +45,7 @@ class TOStory(TOEntry):
         if not getattr(self, "ontology", None):
             raise RuntimeError(
                 "Story must be associated with an ontology to look up themes.")
-        to = self.ontology
+        to = self.ontology()
         for weight, part in self.iter_theme_entries():
             theme = to.theme[part.keyword]
             yield weight, theme

@@ -154,6 +154,7 @@ class ThemeOntology(TOObject):
         return self
 
     def _writefile(self, path, entries, cleaned):
+        cskey = "Component Stories"
         dirname = os.path.dirname(path)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -161,10 +162,15 @@ class ThemeOntology(TOObject):
             sids = set(e.name for e in entries)
             for idx, entry in enumerate(entries):
                 if idx == 0 and entry.name in entry["Collections"]:
-                    entry = copy.deepcopy(entry)
-                    field = entry["Component Stories"]
-                    parts = [x for x in field.parts if x == entry.name or x not in sids]
-                    field.parts = parts
+                    field = entry.get(cskey)
+                    parts = [x for x in field.parts if x not in sids]
+                    if parts != field.parts:
+                        entry = copy.deepcopy(entry)
+                        if parts:
+                            field = entry.setdefault(cskey)
+                            field.parts = parts
+                        else:
+                            entry.delete(cskey)
                 lines = entry.text_canonical() if cleaned else entry.text_original()
                 fh.write(lines)
                 fh.write("\n\n")

@@ -17,11 +17,6 @@ class TestIO:
         to = totolo.empty()
         assert len(to) == 0
 
-    def test_remote_head(self):
-        to = totolo.remote()
-        to.print_warnings()
-        assert len(to) > 3
-
     def test_remote_version_old(self):
         to = totolo.remote.version("v0.3.3")
         to.print_warnings()

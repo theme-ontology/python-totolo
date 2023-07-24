@@ -11,6 +11,7 @@ class TOEntry(TOObject):
     children = a(set())
     source = a([])
     source_location = a("<api>)")
+    ontology = a()
 
     def __str__(self):
         return "{}[{}]".format(
@@ -94,6 +95,10 @@ class TOEntry(TOObject):
         field = TOField(fieldtype=fieldtype, name=fieldname)
         self.fields[fieldname] = field
         return field
+
+    def delete(self, fieldname):
+        if fieldname in self.fields:
+            del self.fields[fieldname]
 
     def print(self):
         print(self.text_canonical().strip())

@@ -1,5 +1,6 @@
 import os
 import re
+import weakref
 from typing import Generator, Iterable, List, Tuple
 
 import totolo.lib.files
@@ -222,7 +223,7 @@ class TOParser:
                 target = to.story
             for entry in entry_iterable:
                 entry.source_location = path
-                entry.ontology = to
+                entry.ontology = weakref.ref(to)
                 to.entries.setdefault(path, [])
                 to.entries[path].append(entry)
                 target[entry.name] = entry
