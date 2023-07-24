@@ -1,0 +1,16 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "totolo"
+authors = [{name = "Mikael Onsjö", email = "mikael@odinlake.net"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+
+[project.urls]
+Home = "https://www.themeontology.org/"
+Documentation = "https://github.com/theme-ontology/theming"
+Source = "https://github.com/theme-ontology/python-totolo"

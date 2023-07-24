@@ -2,6 +2,8 @@ import difflib
 import os.path
 import tempfile
 
+import pandas as pd
+
 import totolo
 
 
@@ -10,6 +12,14 @@ def filediff(path1, path2):
         for line in difflib.unified_diff(
                 file1.readlines(), file2.readlines(), n=0, lineterm=""):
             yield line
+
+
+def set_pandas_display_options() -> None:
+    display = pd.options.display
+    display.max_columns = 100
+    display.max_rows = 1000
+    display.max_colwidth = 90
+    display.width = 200
 
 
 class TestIO:
@@ -151,6 +161,19 @@ class TestFeatures:
         to = totolo.files("tests/data/storytree.st.txt")
         stories = list(to.story["Collection: B2"].descendants())
         assert set(stories) == set(['Collection: B2', 'story: C'])
+
+    def test_dataframe(self):
+        to = totolo.files("tests/data/sample-2023.07.23")
+        df = to.dataframe()
+        set_pandas_display_options()
+        themed_stories = len(
+            [name for name in to.story if not name.startswith("Collection")])
+        story_themes = sum(len(list(s.iter_theme_entries())) for s in to.story.values())
+        set_pandas_display_options()
+        print()
+        print(df[:50])
+        assert len(df) == story_themes
+        assert df["story_id"].nunique() == themed_stories
 
 
 class TestValidation:

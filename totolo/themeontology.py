@@ -40,12 +40,15 @@ class ThemeOntology(TOObject):
         import pandas as pd
         data = []
         for story in self.stories():
-            for weight, part in self.iter_theme_entries():
+            for weight, part in story.iter_theme_entries():
                 themes = [part.keyword]
-                if implied_themes:
-                    themes.extend(self.ancestors(list(themes)))
+                if implied_themes and part.keyword in self.theme:
+                    theme = self.theme[part.keyword]
+                    themes.extend(theme.ancestors())
                 data.append([story.name, story["Title"],
                             story["Date"], part.keyword, weight])
+        return pd.DataFrame(
+            data, columns=["story_id", "title", "date", "theme", "weight"])
 
     def validate(self):
         yield from self.validate_entries()

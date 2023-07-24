@@ -10,12 +10,6 @@ class TOTheme(TOEntry):
     References = sa("list")
     Aliases = sa("list")
 
-    def _lookup(self):
-        try:
-            return self.ontology.theme
-        except AttributeError:
-            return {}
-
     def verbose_description(self):
         description = str(self.get("Description"))
         examples = str(self.get("Examples")).strip()
@@ -69,3 +63,9 @@ class TOTheme(TOEntry):
         import html
         description = str(self.get("Description"))[:256]
         return html.escape(description)
+
+    def _lookup(self):
+        try:
+            return self.ontology().theme
+        except AttributeError:
+            return {}
