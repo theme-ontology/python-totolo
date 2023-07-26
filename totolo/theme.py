@@ -1,3 +1,5 @@
+import html
+
 from .impl.core import sa
 from .impl.entry import TOEntry
 
@@ -31,7 +33,6 @@ class TOTheme(TOEntry):
         return description
 
     def html_description(self):
-        import html
         description = html.escape(str(self.get("Description")))
         examples = html.escape(str(self.get("Examples")).strip())
         aliases = html.escape(str(self.get("Aliases")).strip())
@@ -60,7 +61,6 @@ class TOTheme(TOEntry):
         return description
 
     def html_short_description(self):
-        import html
         description = str(self.get("Description"))[:256]
         return html.escape(description)
 

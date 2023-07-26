@@ -1,3 +1,4 @@
+import html
 import re
 
 from .impl.core import sa
@@ -98,7 +99,6 @@ class TOStory(TOEntry):
         """
         Turn the verbose description into html.
         """
-        import html
         description = html.escape(str(self.get("Description")))
         references = html.escape(str(self.get("References")).strip())
         description = '<P class="obj-description"><BR>\n' + description
@@ -117,7 +117,6 @@ class TOStory(TOEntry):
         """
         A limited length short description without embelishments like "references".
         """
-        import html
         description = str(self.get("Description"))[:256]
         return html.escape(description)
 

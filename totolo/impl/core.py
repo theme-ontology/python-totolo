@@ -81,7 +81,7 @@ class TOObject(metaclass=TOObjectMeta):
 
     def field_required(self, key):
         try:
-            return self.get_attr(key).datatype
+            return self.get_attr(key).required
         except (KeyError, AttributeError) as _e:
             return "unknown"
 

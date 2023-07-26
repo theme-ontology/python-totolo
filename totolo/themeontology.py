@@ -37,7 +37,7 @@ class ThemeOntology(TOObject):
         return random.sample(self.theme.values(), 1)[0]
 
     def dataframe(self, implied_themes=True):
-        import pandas as pd
+        import pandas as pd  # pylint: disable=C0415
         data = []
         for story in self.stories():
             for weight, part in story.iter_theme_entries():

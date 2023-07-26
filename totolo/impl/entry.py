@@ -52,7 +52,7 @@ class TOEntry(TOObject):
             if idx > 1:
                 if line.startswith("::"):
                     break
-                elif line.strip():
+                if line.strip():
                     junklines.append(line)
         if junklines:
             junkmsg = '/'.join(junklines)

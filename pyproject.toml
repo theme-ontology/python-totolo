@@ -14,3 +14,11 @@ dynamic = ["version", "description"]
 Home = "https://www.themeontology.org/"
 Documentation = "https://github.com/theme-ontology/theming"
 Source = "https://github.com/theme-ontology/python-totolo"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+]
+
