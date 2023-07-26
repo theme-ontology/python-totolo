@@ -3,8 +3,10 @@ import os.path
 import tempfile
 
 import pandas as pd
+import pytest
 
 import totolo
+from totolo.themeontology import ThemeOntology
 
 
 def filediff(path1, path2):
@@ -23,8 +25,17 @@ def set_pandas_display_options() -> None:
 
 
 class TestIO:
+    def test_versions(self):
+        versions = [v for v, _ in totolo.remote.versions()]
+        assert "v2023.06" in versions
+        assert "v0.3.3" in versions
+        print("ALL VERSIONS:", versions)
+        with pytest.raises(ValueError):
+            totolo.remote.version("gobbledygook")
+
     def test_empty(self):
         to = totolo.empty()
+        assert isinstance(to, ThemeOntology)
         assert len(to) == 0
 
     def test_remote_version_old(self):

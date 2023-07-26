@@ -24,8 +24,6 @@ class TORemote:
         return TOParser.add_url(empty(), url)
 
     def version(self, version: str = ""):
-        if not version:
-            return self()
         if re.match(r"v\d+\.\d+\.\d+$", version):
             url = DEFAULT_URL + f"archive/refs/tags/{version}.tar.gz"
         elif re.match(r"v20\d{2}\.\d{2}$", version):
@@ -37,6 +35,6 @@ class TORemote:
     def versions(self):
         url = API_URL + "releases"
         with urllib.request.urlopen(url) as response:
-            response.read()
-        for item in json.loads(response.read()):
+            contents = response.read()
+        for item in json.loads(contents):
             yield item["tag_name"], item["name"]
