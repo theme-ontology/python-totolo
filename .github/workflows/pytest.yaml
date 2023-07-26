@@ -8,13 +8,15 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.8", "3.x"]
         os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@master
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -25,7 +27,13 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Test with pytest
       run: |
-        pytest --cov=totolo tests/
+        pytest --cov=totolo --cov-report=xml tests/
     - name: Upload coverage report
-      run: |
-        codecov
+      uses: codecov/codecov-action@v3
+      with:
+        env_vars: OS,PYTHON
+        files: ./coverage.xml
+        flags: unittests
+        fail_ci_if_error: true
+        name: codecov-umbrella
+        verbose: true
