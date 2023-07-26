@@ -28,7 +28,7 @@ THEME_DATA = {
 }
 
 
-class TestTOStory:
+class TestTOEntries:
     def check_descriptions(self, descriptions, has_description=True,
                            has_references=True):
         desc1, desc2, desc3 = descriptions

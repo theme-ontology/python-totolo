@@ -75,7 +75,7 @@ class TOField(TOObject):
                 if part.keyword == kw:
                     todelete.add(idx)
         self.parts = [p for idx, p in enumerate(self.parts) if idx not in todelete]
-        return min(todelete) if todelete else len(self.parts)
+        return len(todelete)
 
     def update_kw(self, kw, keyword=None, motivation=None, capacity=None, notes=None):
         """Edit a keyword."""

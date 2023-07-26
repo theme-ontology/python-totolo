@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -34,7 +34,7 @@ jobs:
 
     - name: Test with PyTest
       run: |
-        pytest --cov=totolo --cov-report=xml tests/
+        pytest --cov-report=xml --cov-fail-under=90 --cov=totolo tests/
 
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v3
