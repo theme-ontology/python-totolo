@@ -23,6 +23,14 @@ class TOEntry(TOObject):
         return self.get(key)
 
     def __setitem__(self, key, value):
+        if not isinstance(value, TOField):
+            data = str(value)
+            value = TOField(
+                name=key,
+                fieldtype="blob",
+                source=[data],
+                data=[data],
+                parts=[data])
         self.fields[key] = value
 
     def __delitem__(self, key):

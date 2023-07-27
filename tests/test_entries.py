@@ -1,3 +1,5 @@
+import pytest
+
 from totolo.story import TOStory
 from totolo.theme import TOTheme
 
@@ -100,3 +102,23 @@ class TestTOEntries:
                 key1 != "Description",
                 key1 != "References",
             )
+
+    def test_story_properties(self):
+        story = TOStory(name="foo")
+        assert story.sid == "foo"
+
+        story["Date"] = "gobbledygook"
+        assert story.year == 0
+        story["Date"] = "81 BC"
+        assert story.year == -81
+        story["Date"] = "1981-04-15"
+        assert story.year == 1981
+        story["Date"] = "1981 Apr 15  "
+        assert story.year == 1981
+        assert story.date == "1981 Apr 15"
+
+        story["Title"] = " foo foo  "
+        assert story.title == "foo foo"
+
+        with pytest.raises(RuntimeError):
+            list(story.iter_themes())

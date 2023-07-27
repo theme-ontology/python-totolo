@@ -1,6 +1,10 @@
 import difflib
+import io
+import json
 import os.path
 import tempfile
+import urllib.request
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -26,10 +30,14 @@ def set_pandas_display_options() -> None:
 
 class TestIO:
     def test_versions(self):
-        versions = [v for v, _ in totolo.remote.versions()]
+        data = io.StringIO(json.dumps([
+            {"tag_name": "v2023.06", "name": "new version number"},
+            {"tag_name": "v0.3.3", "name": "new version number"},
+        ]))
+        with patch.object(urllib.request, 'urlopen', return_value=data):
+            versions = [v for v, _ in totolo.remote.versions()]
         assert "v2023.06" in versions
         assert "v0.3.3" in versions
-        print("ALL VERSIONS:", versions)
         with pytest.raises(ValueError):
             totolo.remote.version("gobbledygook")
 
@@ -39,14 +47,18 @@ class TestIO:
         assert len(to) == 0
 
     def test_remote_version_old(self):
-        to = totolo.remote.version("v0.3.3")
-        to.print_warnings()
-        assert len(to) > 3
+        with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
+            with patch.object(urllib.request, 'urlopen', return_value=fh):
+                ontology = totolo.remote.version("v0.3.3")
+        ontology.print_warnings()
+        assert len(ontology) > 3
 
     def test_remote_version_new(self):
-        to = totolo.remote.version("v2023.06")
-        to.print_warnings()
-        assert len(to) > 3
+        with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
+            with patch.object(urllib.request, 'urlopen', return_value=fh):
+                ontology = totolo.remote.version("v2023.06")
+        ontology.print_warnings()
+        assert len(ontology) > 3
 
     def test_theme_attributes(self):
         to = totolo.files("tests/data/to-2023.07.09.th.txt")
@@ -84,7 +96,9 @@ class TestIO:
 
     def test_fetch_and_write(self):
         print("Downloading master...")
-        to1 = totolo.remote()
+        with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
+            with patch.object(urllib.request, 'urlopen', return_value=fh):
+                to1 = totolo.remote()
         with tempfile.TemporaryDirectory() as prefix:
             print(f"Writing to: {prefix}")
             to1.write(prefix=prefix, verbose=True)
