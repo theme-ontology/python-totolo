@@ -81,42 +81,22 @@ class TOStory(TOEntry):
         return self.get("Title").text_canonical_contents().strip()
 
     def verbose_description(self):
-        """
-        A description that combines various other fields, including Notes, Examples,
-        Aliases, and References.
-        """
         description = str(self.get("Description"))
         references = str(self.get("References")).strip()
         if references:
-            description += "\n\nReferences:\n"
-            for line in references.split("\n"):
-                line = line.strip()
-                if line:
-                    description += line + "\n"
+            description += self.references_(references)
         return description
 
     def html_description(self):
-        """
-        Turn the verbose description into html.
-        """
         description = html.escape(str(self.get("Description")))
         references = html.escape(str(self.get("References")).strip())
         description = '<P class="obj-description"><BR>\n' + description
         description += "</P>\n"
         if references:
-            description += '<P class="obj-description"><b>References:</b><BR>\n'
-            for line in references.split("\n"):
-                line = line.strip()
-                if line:
-                    aline = '<A href="{}">{}</A>'.format(line, line)
-                    description += aline + "\n"
-            description += "</P>\n"
+            description += self.html_references_(references)
         return description
 
     def html_short_description(self):
-        """
-        A limited length short description without embelishments like "references".
-        """
         description = str(self.get("Description"))[:256]
         return html.escape(description)
 

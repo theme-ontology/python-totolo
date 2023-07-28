@@ -23,11 +23,11 @@ def remote_tar(url: str):
 
 
 def walk(path: str, pattern: str = ".*", levels: int = -1):
-    r = re.compile(pattern)
+    regex = re.compile(pattern)
 
     for item in os.listdir(path):
         spath = os.path.join(path, item)
-        if r.match(item):
+        if regex.match(item):
             if os.path.isfile(spath):
                 yield spath
 

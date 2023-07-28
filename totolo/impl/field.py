@@ -16,11 +16,10 @@ class TOField(TOObject):
         super().__setattr__(name, value)
 
     def __repr__(self):
-        return "{}<{}>[{}]".format(
-            type(self).__name__,
-            self.name.encode("ascii", "ignore"),
-            len(self.data)
-        )
+        tname = type(self).__name__
+        name = self.name.encode("ascii", "ignore")
+        ndata = len(self.data)
+        return f"{tname}<{name}>[{ndata}]"
 
     def __str__(self):
         return self.text_canonical_contents()
@@ -68,24 +67,23 @@ class TOField(TOObject):
     def text_original(self):
         return "\n".join(self.source)
 
-    def delete_kw(self, kw):
-        """Delete a keyword."""
+    def delete_kw(self, keyword):
         self.assert_mutable()
         fieldtype = self.fieldtype
         todelete = set()
         if fieldtype == "kwlist":
             for idx, part in enumerate(self.parts):
-                if part.keyword == kw:
+                if part.keyword == keyword:
                     todelete.add(idx)
         self.parts = [p for idx, p in enumerate(self.parts) if idx not in todelete]
         return len(todelete)
 
-    def update_kw(self, kw, keyword=None, motivation=None, capacity=None, notes=None):
-        """Edit a keyword."""
+    def update_kw(self, match_keyword, keyword=None,
+                  motivation=None, capacity=None, notes=None):
         self.assert_mutable()
         assert self.fieldtype == "kwlist"
         for part in self.parts:
-            if part.keyword == kw:
+            if part.keyword == match_keyword:
                 if keyword is not None:
                     part.keyword = keyword
                 if motivation is not None:
@@ -96,7 +94,6 @@ class TOField(TOObject):
                     part.notes = notes
 
     def insert_kw(self, idx=None, keyword="", motivation="", capacity="", notes=""):
-        """Insert a keyword."""
         self.assert_mutable()
         assert self.fieldtype == "kwlist"
         if idx is None:

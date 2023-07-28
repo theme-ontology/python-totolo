@@ -3,10 +3,8 @@ import textwrap
 
 def remove_wordwrap(text):
     """
-    Remove single newline characters (i.e. '\n') from string, but leave double newlines (i.e. '\n\n').
-    Args:
-        text: string
-    Returns: string
+    Remove single newline characters (i.e. '\n') from string, but leave double
+    newlines (i.e. '\n\n').
     """
     text_blocks = text.split("\n")
     dewordwraped_text_block = []
@@ -27,14 +25,11 @@ def remove_wordwrap(text):
 
     return "\n\n".join(dewordwraped_text_blocks)
 
+
 def add_wordwrap(text, wrap_length=78):
     """
-    Add line breaks to string (i.e. '\n' character) so that each line is at most 'wrap_length'
-    characters in length.
-    Args:
-        text: string
-        wrap_length: integer
-    Returns: string
+    Add line breaks to string (i.e. '\\n' character) so that each line is at
+    most 'wrap_length' characters in length.
     """
     paragraphs = remove_wordwrap(text)
     wordwrapped_lines = []

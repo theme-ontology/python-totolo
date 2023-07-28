@@ -7,6 +7,10 @@ class TOAttr:
         self.default = default
         self.private = private
 
+    def __str__(self):
+        tname = self.__class__.__name__
+        return f"{tname}({self.default})"
+
 
 class TOStoredAttr(TOAttr):
     def __init__(self, datatype="blob", default=None, required=False):
@@ -16,9 +20,13 @@ class TOStoredAttr(TOAttr):
         self.datatype = datatype
         self.required = required
 
+    def __str__(self):
+        tname = self.__class__.__name__
+        return f"{tname}<{self.datatype}>({self.default})"
+
 
 class TOObjectMeta(type):
-    def __new__(meta, name, bases, attr):
+    def __new__(mcs, name, bases, attr):
         to_attrs = OrderedDict()
         for base in bases:
             for key, value in getattr(base, "_to_attrs", {}).items():
@@ -33,7 +41,7 @@ class TOObjectMeta(type):
                 to_attrs[key] = value
                 del attr[key]
         attr["_to_attrs"] = to_attrs
-        return super().__new__(meta, name, bases, attr)
+        return super().__new__(mcs, name, bases, attr)
 
     def __call__(cls, *args, **kwargs):
         self = super().__call__(*args, **kwargs)
@@ -43,7 +51,7 @@ class TOObjectMeta(type):
         return self
 
     @classmethod
-    def __prepare__(mcls, _cls, _bases):
+    def __prepare__(mcs, _cls, _bases):
         return OrderedDict()
 
 

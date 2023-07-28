@@ -44,6 +44,17 @@ class TestTOObject:
         assert obj.field_type("bb") == "txt"
         assert obj.field_type("qq") == "unknown"
 
+    def test_typedef(self):
+        strs = [
+            str(TOTest1._to_attrs["a1"]),
+            str(TOTest1._to_attrs["bb"]),
+            repr(TOTest1._to_attrs["a1"]),
+            repr(TOTest1._to_attrs["bb"]),
+        ]
+        for strobj in strs:
+            assert isinstance(strobj, str)
+            assert len(strobj) > 5
+
 
 class TestField:
     def make_field(self, fieldtype="text"):

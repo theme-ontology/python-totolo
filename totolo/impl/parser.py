@@ -197,13 +197,13 @@ class TOParser:
     @classmethod
     def _add_file(cls, ontology, path):
         target = {}
-        with open(path, "r", encoding='utf-8') as fh:
+        with open(path, "r", encoding='utf-8') as fhandle:
             entry_iterable = []
             if path.endswith(".th.txt"):
-                entry_iterable = cls.parse_themes(fh)
+                entry_iterable = cls.parse_themes(fhandle)
                 target = ontology.theme
             elif path.endswith(".st.txt"):
-                entry_iterable = cls.parse_stories(fh)
+                entry_iterable = cls.parse_stories(fhandle)
                 target = ontology.story
             for entry in entry_iterable:
                 entry.source_location = path

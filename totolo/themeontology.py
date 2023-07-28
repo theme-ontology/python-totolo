@@ -81,20 +81,19 @@ class ThemeOntology(TOObject):
         """Detect cycles (stops after first cycle encountered)."""
         parents = {}
         for theme in self.themes():
-            parents[theme.name] = [parent for parent in theme.get("Parents")]
+            parents[theme.name] = list(theme.get("Parents"))
 
         def dfs(current, tpath=None):
             tpath = tpath or []
             if current in tpath:
                 cycle = tpath[tpath.index(current):]
                 return f"Cycle: {cycle}"
-            else:
-                tpath.append(current)
-                for parent in parents[current]:
-                    msg = dfs(parent, tpath)
-                    if msg:
-                        return msg
-                tpath.pop()
+            tpath.append(current)
+            for parent in parents[current]:
+                msg = dfs(parent, tpath)
+                if msg:
+                    return msg
+            tpath.pop()
             return None
 
         for theme in self.themes():
@@ -163,7 +162,7 @@ class ThemeOntology(TOObject):
         dirname = os.path.dirname(path)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        with open(path, "w", encoding='utf-8') as fh:
+        with open(path, "w", encoding='utf-8') as fhandle:
             sids = set(e.name for e in entries)
             for idx, entry in enumerate(entries):
                 if idx == 0 and entry.name in entry["Collections"]:
@@ -177,5 +176,5 @@ class ThemeOntology(TOObject):
                         else:
                             entry.delete(cskey)
                 lines = entry.text_canonical() if cleaned else entry.text_original()
-                fh.write(lines)
-                fh.write("\n\n" if cleaned else "\n")
+                fhandle.write(lines)
+                fhandle.write("\n\n" if cleaned else "\n")

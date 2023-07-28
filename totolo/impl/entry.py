@@ -20,16 +20,22 @@ class TOEntry(TOObject):
         return hash(self.name)
 
     def __str__(self):
-        return "{}[{}]".format(
-            self.name.encode("ascii", "ignore"),
-            len(self.fields)
-        )
+        name = self.name.encode("ascii", "ignore")
+        return f"{name}[{len(self.fields)}]"
 
     def __getitem__(self, key):
         return self.get(key)
 
     def __setitem__(self, key, value):
-        if not isinstance(value, TOField):
+        if isinstance(value, list):
+            value = TOField(
+                name=key,
+                fieldtype="list",
+                source=value,
+                data=value,
+                parts=value
+            )
+        elif not isinstance(value, TOField):
             data = str(value)
             value = TOField(
                 name=key,
@@ -132,3 +138,25 @@ class TOEntry(TOObject):
                     if nitem not in visited:
                         pending.append(nitem)
                         visited.add(nitem)
+
+    @staticmethod
+    def html_references_(references_text):
+        description = [
+            '<P class="obj-description"><b>References:</b><BR>'
+        ]
+        reflines = [line.strip() for line in references_text.split("\n")]
+        reflines = [x for x in reflines if x]
+        for line in reflines:
+            aline = f'<A href="{line}">{line}</A>'
+            description.append(aline)
+        description.append("</P>\n")
+        return "\n".join(description)
+
+    @staticmethod
+    def references_(references_text):
+        description = ["References:"]
+        reflines = [line.strip() for line in references_text.split("\n")]
+        reflines = [x for x in reflines if x]
+        for line in reflines:
+            description.append(line)
+        return "\n".join(description)

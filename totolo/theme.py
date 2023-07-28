@@ -25,12 +25,12 @@ class TOTheme(TOEntry):
         if aliases:
             description += "\n\nAliases:\n" + aliases
         if references:
-            description += "\n\nReferences:\n"
-            for line in references.split("\n"):
-                line = line.strip()
-                if line:
-                    description += line + "\n"
+            description += self.references_(references)
         return description
+
+    def html_short_description(self):
+        description = str(self.get("Description"))[:256]
+        return html.escape(description)
 
     def html_description(self):
         description = html.escape(str(self.get("Description")))
@@ -51,18 +51,8 @@ class TOTheme(TOEntry):
             description += '<P class="obj-description"><b>Aliases:</b><BR>\n' + aliases
             description += "</P>\n"
         if references:
-            description += '<P class="obj-description"><b>References:</b><BR>\n'
-            for line in references.split("\n"):
-                line = line.strip()
-                if line:
-                    aline = f'<A href="{line}">{line}</A>'
-                    description += aline + "\n"
-            description += "</P>\n"
+            description += self.html_references_(references)
         return description
-
-    def html_short_description(self):
-        description = str(self.get("Description"))[:256]
-        return html.escape(description)
 
     def _lookup(self):
         try:
