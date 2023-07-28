@@ -10,6 +10,8 @@ import pandas as pd
 import pytest
 
 import totolo
+from totolo.story import TOStory
+from totolo.theme import TOTheme
 from totolo.themeontology import ThemeOntology
 
 
@@ -134,6 +136,28 @@ class TestIO:
 
 
 class TestFeatures:
+    def test_story_to_theme(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        story = ontology.story["movie: Frankenstein (1931)"]
+        themes = sorted(th.name for _w, th in story.iter_themes())
+        assert themes == sorted([
+            "engaged couple",
+            "hubris",
+            "mad scientist stereotype",
+            "maker and monster",
+            "obsession",
+            "playing God with nature",
+            "pride goes before a fall",
+            "undead being",
+            "what it is like to be different",
+            "body snatching",
+            "coping with the death of someone",
+            "electricity",
+            "pride in one's own creation",
+            "scientist occupation",
+            "unrequited love",
+        ])
+
     def test_theme_ancestors(self):
         to = totolo.files("tests/data/to-2023.07.09.th.txt")
         themes = list(to.theme["love"].ancestors())
@@ -144,6 +168,7 @@ class TestFeatures:
             'personal human experience',
             'the human world',
         ])
+        assert list(TOTheme(name="foo").ancestors()) == ["foo"]
 
     def test_theme_descendants(self):
         to = totolo.files("tests/data/to-2023.07.09.th.txt")
@@ -175,17 +200,20 @@ class TestFeatures:
             'matrimonial love',
             'filial love',
         ])
+        assert list(TOTheme(name="foo").descendants()) == ["foo"]
 
     def test_story_ancestors(self):
         to = totolo.files("tests/data/storytree.st.txt")
         stories = list(to.story["Collection: B2"].ancestors())
         assert set(stories) == set(
             ['Collection: B2', 'Collection: A', 'Collection: B1'])
+        assert list(TOStory(name="foo").ancestors()) == ["foo"]
 
     def test_story_descendants(self):
         to = totolo.files("tests/data/storytree.st.txt")
         stories = list(to.story["Collection: B2"].descendants())
         assert set(stories) == set(['Collection: B2', 'story: C'])
+        assert list(TOStory(name="foo").descendants()) == ["foo"]
 
     def test_dataframe(self):
         to = totolo.files("tests/data/sample-2023.07.23")

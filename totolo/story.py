@@ -37,10 +37,10 @@ class TOStory(TOEntry):
         """
         Iterate over the theme objects associated with this story object.
         """
-        if not getattr(self, "ontology", None):
+        to = self.ontology()
+        if to is None:
             raise RuntimeError(
                 "Story must be associated with an ontology to look up themes.")
-        to = self.ontology()
         for weight, part in self.iter_theme_entries():
             theme = to.theme[part.keyword]
             yield weight, theme

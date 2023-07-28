@@ -89,7 +89,7 @@ class TOParser:
                     state = ""
                 else:
                     raise AssertionError(
-                        "Malformed field (bracket mismatch):\n  %s" % field
+                        f"Malformed field (bracket mismatch):\n {field}"
                     )
             elif part in splitters and not state:
                 tokrow = dict2row(token)
@@ -100,10 +100,6 @@ class TOParser:
                 token = {}
             else:
                 token[state] = token.get(state, "") + part
-
-        tokrow = dict2row(token)
-        if tokrow[0].strip():
-            yield dict2row(token)
 
     @classmethod
     def make_field(cls, lines, fieldtype):
@@ -163,8 +159,6 @@ class TOParser:
     def parse_stories(cls, lines):
         collection_entry = None
         entries = []
-        if isinstance(lines, str):
-            lines = lines.splitlines()
         for idx, entrylines in enumerate(TOParser.iter_entries(lines)):
             entry = cls.make_story(entrylines)
             if idx == 0:
@@ -180,8 +174,6 @@ class TOParser:
     @classmethod
     def parse_themes(cls, lines):
         entries = []
-        if isinstance(lines, str):
-            lines = lines.splitlines()
         for _idx, entrylines in enumerate(TOParser.iter_entries(lines)):
             entry = cls.make_theme(entrylines)
             entries.append(entry)

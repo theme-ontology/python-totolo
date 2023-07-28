@@ -1,5 +1,9 @@
+import pytest
+
+import totolo
 from totolo.impl.core import TOObject, a, sa
 from totolo.impl.field import TOField
+from totolo.impl.parser import TOParser
 
 
 class TOTest1(TOObject):
@@ -72,3 +76,24 @@ class TestField:
         count = field.delete_kw("foo2")
         assert count == 1
         assert len(field.parts) == 0
+
+
+class TestTOParser:
+    def test_oddities(self):
+        to = totolo.empty()
+
+        with pytest.raises(ValueError):
+            TOParser.add_url(to, "gobbledygook")
+
+        with pytest.raises(AssertionError):
+            list(TOParser.iter_kwitems(["malformed ] field"]))
+        with pytest.raises(AssertionError):
+            list(TOParser.iter_kwitems(["malformed <[]} field"]))
+        with pytest.raises(AssertionError):
+            list(TOParser.iter_kwitems(["malformed {}> field"]))
+        with pytest.raises(AssertionError):
+            list(TOParser.iter_kwitems(["malformed <<>> field"]))
+        with pytest.raises(AssertionError):
+            list(TOParser.iter_kwitems(["malformed {{}} field"]))
+        with pytest.raises(AssertionError):
+            list(TOParser.iter_kwitems(["malformed [[]] field"]))

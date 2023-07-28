@@ -11,7 +11,13 @@ class TOEntry(TOObject):
     children = a(set())
     source = a([])
     source_location = a("<api>)")
-    ontology = a()
+    ontology = a(lambda: None)
+
+    def __lt__(self, other):
+        return str(self) < str(other)
+
+    def __hash__(self):
+        return hash(self.name)
 
     def __str__(self):
         return "{}[{}]".format(
@@ -121,8 +127,9 @@ class TOEntry(TOObject):
         while pending:
             name = pending.pop()
             yield name
-            item = lookup[name]
-            for nitem in getattr(item, attr):
-                if nitem not in visited:
-                    pending.append(nitem)
-                    visited.add(nitem)
+            item = lookup.get(name, None)
+            if item is not None:
+                for nitem in getattr(item, attr):
+                    if nitem not in visited:
+                        pending.append(nitem)
+                        visited.add(nitem)
