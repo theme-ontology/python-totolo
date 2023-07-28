@@ -44,9 +44,9 @@ class TestIO:
             totolo.remote.version("gobbledygook")
 
     def test_empty(self):
-        to = totolo.empty()
-        assert isinstance(to, ThemeOntology)
-        assert len(to) == 0
+        ontology = totolo.empty()
+        assert isinstance(ontology, ThemeOntology)
+        assert len(ontology) == 0
 
     def test_remote_version_old(self):
         with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
@@ -63,8 +63,8 @@ class TestIO:
         assert len(ontology) > 3
 
     def test_theme_attributes(self):
-        to = totolo.files("tests/data/to-2023.07.09.th.txt")
-        t = to.theme["coping with senility"]
+        ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
+        t = ontology.theme["coping with senility"]
         t.print()
         assert t.name == "coping with senility"
         assert t["Description"].str().startswith(
@@ -79,8 +79,8 @@ class TestIO:
 
     def test_story_attributes(self):
         name = "play: The Taming of the Shrew (1592)"
-        to = totolo.files("tests/data/to-sample-2023.07.09.st.txt")
-        s = to.story[name]
+        ontology = totolo.files("tests/data/to-sample-2023.07.09.st.txt")
+        s = ontology.story[name]
         s.print()
         assert s.name == name
         assert s.sid == name
@@ -136,18 +136,18 @@ class TestIO:
 
     def test_write_clean(self):
         prefix1 = "tests/data/sample-2023.07.23"
-        to1 = totolo.files(prefix1)
+        ontology1 = totolo.files(prefix1)
         with tempfile.TemporaryDirectory() as prefix2:
             print(f"Writing to: {prefix2}")
-            to1.write(prefix=prefix2, verbose=True)
+            ontology1.write(prefix=prefix2, verbose=True)
             print(f"Reading from: {prefix2}")
-            to2 = totolo.files(prefix2)
-            to2.write_clean()
-            to3 = totolo.files(prefix2)
+            ontology2 = totolo.files(prefix2)
+            ontology2.write_clean()
+            ontology3 = totolo.files(prefix2)
             diffs = []
-            for path, entries in to3.entries.items():
+            for path, entries in ontology3.entries.items():
                 for idx, entry3 in enumerate(entries):
-                    entry2 = to2.entries[path][idx]
+                    entry2 = ontology2.entries[path][idx]
                     if entry2.source != entry3.source:
                         diffs.append(entry2.name)
             assert "movie: Dr. Jekyll and Mr. Hyde (1920 II)" in diffs
@@ -192,8 +192,8 @@ class TestFeatures:
         ])
 
     def test_theme_ancestors(self):
-        to = totolo.files("tests/data/to-2023.07.09.th.txt")
-        themes = list(to.theme["love"].ancestors())
+        ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
+        themes = list(ontology.theme["love"].ancestors())
         assert set(themes) == set([
             'love',
             'human emotion',
@@ -204,8 +204,8 @@ class TestFeatures:
         assert list(TOTheme(name="foo").ancestors()) == ["foo"]
 
     def test_theme_descendants(self):
-        to = totolo.files("tests/data/to-2023.07.09.th.txt")
-        themes = list(to.theme["love"].descendants())
+        ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
+        themes = list(ontology.theme["love"].descendants())
         assert set(themes) == set([
             'love',
             'romantic love',
@@ -236,25 +236,26 @@ class TestFeatures:
         assert list(TOTheme(name="foo").descendants()) == ["foo"]
 
     def test_story_ancestors(self):
-        to = totolo.files("tests/data/storytree.st.txt")
-        stories = list(to.story["Collection: B2"].ancestors())
+        ontology = totolo.files("tests/data/storytree.st.txt")
+        stories = list(ontology.story["Collection: B2"].ancestors())
         assert set(stories) == set(
             ['Collection: B2', 'Collection: A', 'Collection: B1'])
         assert list(TOStory(name="foo").ancestors()) == ["foo"]
 
     def test_story_descendants(self):
-        to = totolo.files("tests/data/storytree.st.txt")
-        stories = list(to.story["Collection: B2"].descendants())
+        ontology = totolo.files("tests/data/storytree.st.txt")
+        stories = list(ontology.story["Collection: B2"].descendants())
         assert set(stories) == set(['Collection: B2', 'story: C'])
         assert list(TOStory(name="foo").descendants()) == ["foo"]
 
     def test_dataframe(self):
-        to = totolo.files("tests/data/sample-2023.07.23")
-        df = to.dataframe()
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        df = ontology.dataframe()
         set_pandas_display_options()
         themed_stories = len(
-            [name for name in to.story if not name.startswith("Collection")])
-        story_themes = sum(len(list(s.iter_theme_entries())) for s in to.story.values())
+            [name for name in ontology.story if not name.startswith("Collection")])
+        story_themes = sum(len(list(s.iter_theme_entries()))
+                           for s in ontology.story.values())
         set_pandas_display_options()
         print()
         print(df[:50])
@@ -264,12 +265,12 @@ class TestFeatures:
 
 class TestValidation:
     def test_cycle_warning(self):
-        to = totolo.files("tests/data/cycles1.th.txt")
-        assert len([msg for msg in to.validate_cycles() if "Cycle:" in msg]) == 1
-        to = totolo.files("tests/data/cycles2.th.txt")
-        assert len([msg for msg in to.validate_cycles() if "Cycle:" in msg]) == 1
-        to = totolo.files("tests/data/cycles3.th.txt")
-        assert len([msg for msg in to.validate_cycles() if "Cycle:" in msg]) == 1
+        ontology = totolo.files("tests/data/cycles1.th.txt")
+        assert len([msg for msg in ontology.validate_cycles() if "Cycle:" in msg]) == 1
+        ontology = totolo.files("tests/data/cycles2.th.txt")
+        assert len([msg for msg in ontology.validate_cycles() if "Cycle:" in msg]) == 1
+        ontology = totolo.files("tests/data/cycles3.th.txt")
+        assert len([msg for msg in ontology.validate_cycles() if "Cycle:" in msg]) == 1
 
     def test_multiple_entries(self):
         ontology = totolo.files([

@@ -112,10 +112,10 @@ class TestTOParser:
         assert story.source[-3] == "1789"
 
     def test_oddities(self):
-        to = totolo.empty()
+        ontology = totolo.empty()
 
         with pytest.raises(ValueError):
-            TOParser.add_url(to, "gobbledygook")
+            TOParser.add_url(ontology, "gobbledygook")
 
         with pytest.raises(AssertionError):
             list(TOParser.iter_kwitems(["malformed ] field"]))

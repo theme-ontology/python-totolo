@@ -4,9 +4,9 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "totolo"
-authors = [{name = "Mikael Onsjö", email = "mikael@odinlake.net"}]
+authors = [{ name = "Mikael Onsjö", email = "mikael@odinlake.net" }]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
 
@@ -15,10 +15,16 @@ Home = "https://www.themeontology.org/"
 Documentation = "https://github.com/theme-ontology/theming"
 Source = "https://github.com/theme-ontology/python-totolo"
 
+[tool.pylint.BASIC]
+good-names = "a,sa"
+
 [tool.pylint."MESSAGES CONTROL"]
 disable = [
-    "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
+    "missing-module-docstring",    # don't want it
+    "missing-class-docstring",     # don't want it
+    "missing-function-docstring",  # don't want it
+    "no-member",                   # pylint gets it wrong
+    "unsupported-membership-test", # pylint gets it wrong
+    "not-callable",                # pylint gets it wrong
+    "unsubscriptable-object",      # pylint gets it wrong
 ]
-

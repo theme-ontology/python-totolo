@@ -172,43 +172,43 @@ class TOParser:
         return entries
 
     @classmethod
-    def add_url(cls, to, url):
+    def add_url(cls, ontology, url):
         suffixes = [".tar", ".tar.gz"]
         if any(url.endswith(x) for x in suffixes):
             with totolo.lib.files.remote_tar(url) as dirname:
-                cls.add_files(to, dirname)
+                cls.add_files(ontology, dirname)
         else:
             raise ValueError(f"Expected url ending in one of {suffixes}")
-        return to
+        return ontology
 
     @classmethod
-    def add_files(cls, to, paths):
+    def add_files(cls, ontology, paths):
         if isinstance(paths, str):
             paths = [paths]
         for path in paths:
-            to.basepaths.add(path)
+            ontology.basepaths.add(path)
             if os.path.isdir(path):
                 for filepath in totolo.lib.files.walk(path, r".*\.(st|th)\.txt$"):
-                    cls._add_file(to, filepath)
+                    cls._add_file(ontology, filepath)
             else:
-                cls._add_file(to, path)
-        return to.refresh_relations()
+                cls._add_file(ontology, path)
+        return ontology.refresh_relations()
 
     @classmethod
-    def _add_file(cls, to, path):
+    def _add_file(cls, ontology, path):
         target = {}
         with open(path, "r", encoding='utf-8') as fh:
             entry_iterable = []
             if path.endswith(".th.txt"):
                 entry_iterable = cls.parse_themes(fh)
-                target = to.theme
+                target = ontology.theme
             elif path.endswith(".st.txt"):
                 entry_iterable = cls.parse_stories(fh)
-                target = to.story
+                target = ontology.story
             for entry in entry_iterable:
                 entry.source_location = path
-                entry.ontology = weakref.ref(to)
-                to.entries.setdefault(path, [])
-                to.entries[path].append(entry)
+                entry.ontology = weakref.ref(ontology)
+                ontology.entries.setdefault(path, [])
+                ontology.entries[path].append(entry)
                 target[entry.name] = entry
-        return to
+        return ontology

@@ -72,10 +72,10 @@ class ThemeOntology(TOObject):
         for story in self.stories():
             for weight in ["choice", "major", "minor", "not"]:
                 field = f"{weight.capitalize()} Themes"
-                for kwf in story.get(field):
-                    if kwf.keyword not in self.theme:
-                        name, kw = story.name, kwf.keyword
-                        yield f"{name}: Undefined '{weight} theme' with name '{kw}'"
+                for kwfield in story.get(field):
+                    if kwfield.keyword not in self.theme:
+                        yield (f"{story.name}: Undefined '{weight} theme' with "
+                               f"name '{kwfield.keyword}'")
 
     def validate_cycles(self):
         """Detect cycles (stops after first cycle encountered)."""

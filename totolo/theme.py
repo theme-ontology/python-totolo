@@ -55,7 +55,7 @@ class TOTheme(TOEntry):
             for line in references.split("\n"):
                 line = line.strip()
                 if line:
-                    aline = '<A href="{}">{}</A>'.format(line, line)
+                    aline = f'<A href="{line}">{line}</A>'
                     description += aline + "\n"
             description += "</P>\n"
         return description
