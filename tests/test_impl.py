@@ -30,6 +30,20 @@ class TestTOObject:
         assert not hasattr(a, "cc")
         assert not hasattr(a, "a3")
 
+    def test_representation(self):
+        obj = TOObject()
+        strs = [str(obj), repr(obj)]
+        assert all(isinstance(x, str) for x in strs)
+        assert all(len(x) > 5 for x in strs)
+
+    def test_field_lookup(self):
+        obj = TOTest1()
+        assert obj.field_required("bb") == True
+        assert obj.field_required("cc") == False
+        assert obj.field_required("qq") == False
+        assert obj.field_type("bb") == "txt"
+        assert obj.field_type("qq") == "unknown"
+
 
 class TestField:
     def make_field(self, fieldtype="text"):
@@ -77,6 +91,23 @@ class TestField:
         count = field.delete_kw("foo2")
         assert count == 1
         assert len(field.parts) == 0
+
+    def test_freeze(self):
+        field = self.make_field("kwlist").freeze()
+        with pytest.raises(AttributeError):
+            field.data = [1]
+        with pytest.raises(AttributeError):
+            field.delete_kw("foo")
+        with pytest.raises(AttributeError):
+            field.update_kw("foo")
+        with pytest.raises(AttributeError):
+            field.insert_kw(0, keyword="foo")
+
+    def test_representation(self):
+        field = self.make_field("kwlist").freeze()
+        strs = [str(field), repr(field)]
+        assert all(isinstance(x, str) for x in strs)
+        assert all(len(x) > 5 for x in strs)
 
 
 class TestTOParser:

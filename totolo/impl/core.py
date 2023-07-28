@@ -83,7 +83,7 @@ class TOObject(metaclass=TOObjectMeta):
         try:
             return self.get_attr(key).required
         except (KeyError, AttributeError) as _e:
-            return "unknown"
+            return False
 
     def __str__(self):
         return "[TOObject]"
