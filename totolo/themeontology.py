@@ -31,10 +31,10 @@ class ThemeOntology(TOObject):
             yield theme
 
     def astory(self):
-        return random.sample(self.story.items(), 1)[0][1]
+        return random.sample(list(self.story.values()), 1)[0]
 
     def atheme(self):
-        return random.sample(self.theme.items(), 1)[0][1]
+        return random.sample(list(self.theme.values()), 1)[0]
 
     def dataframe(self, implied_themes=True):
         import pandas as pd  # pylint: disable=C0415
