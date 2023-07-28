@@ -31,10 +31,10 @@ class ThemeOntology(TOObject):
             yield theme
 
     def astory(self):
-        return random.sample(self.story.values(), 1)[0]
+        return random.sample(self.story.items(), 1)[0][1]
 
     def atheme(self):
-        return random.sample(self.theme.values(), 1)[0]
+        return random.sample(self.theme.items(), 1)[0][1]
 
     def dataframe(self, implied_themes=True):
         import pandas as pd  # pylint: disable=C0415
@@ -63,7 +63,9 @@ class ThemeOntology(TOObject):
                 for warning in entry.validate():
                     yield f"{path}: {warning}"
                 if entry.name in lookup[type(entry)]:
-                    yield f"{path}: Multiple {type(entry)} with name '{entry.name}'"
+                    tname = type(entry).__name__
+                    yield f"{path}: Multiple {tname} with name '{entry.name}'"
+                lookup[type(entry)][entry.name] = path
 
     def validate_storythemes(self):
         """Detect undefined themes used in stories."""
@@ -101,12 +103,12 @@ class ThemeOntology(TOObject):
                 yield msg
                 break
 
-    def write_clean(self, verbose=False):
+    def write_clean(self):
         """
         Write the ontology back to its source file while cleaning up syntax and
         omitting unknown field names.
         """
-        self.write(verbose=verbose)
+        self.write(cleaned=True)
 
     def write(self, prefix=None, cleaned=False, verbose=False):
         old_prefix = "" if prefix is None else os.path.commonpath(self.basepaths)
@@ -176,4 +178,4 @@ class ThemeOntology(TOObject):
                             entry.delete(cskey)
                 lines = entry.text_canonical() if cleaned else entry.text_original()
                 fh.write(lines)
-                fh.write("\n\n")
+                fh.write("\n\n" if cleaned else "\n")

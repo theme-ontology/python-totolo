@@ -27,7 +27,7 @@ Dr. Jekyll and Mr. Hyde
 :: Date
 1920-03-28
 
-:: Description
+::  Description
 A 1920 film based on the Robert Louis Stevenson's novel Strange Case of Dr
 Jekyll and Mr Hyde directed and written by J. Charles Haydon.
 

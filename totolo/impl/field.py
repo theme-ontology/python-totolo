@@ -50,7 +50,7 @@ class TOField(TOObject):
         return list(self.parts)
 
     def empty(self):
-        return any(self.parts)
+        return not any(self.parts)
 
     def iter_parts(self):
         for part in self.parts:
@@ -64,6 +64,9 @@ class TOField(TOObject):
         parts = [f":: {self.name}"]
         parts.extend(str(x) for x in self.iter_parts())
         return "\n".join(parts)
+
+    def text_original(self):
+        return "\n".join(self.source)
 
     def delete_kw(self, kw):
         """Delete a keyword."""

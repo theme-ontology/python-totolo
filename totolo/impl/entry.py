@@ -88,8 +88,7 @@ class TOEntry(TOObject):
     def text_original(self):
         lines = [self.name, "=" * len(self.name), ""]
         for field in self.iter_fields(reorder=False, skipunknown=False):
-            lines.append(field.text_canonical())
-            lines.append("")
+            lines.append(field.text_original())
         return "\n".join(lines)
 
     def get(self, fieldname):

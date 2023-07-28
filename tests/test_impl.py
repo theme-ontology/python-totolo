@@ -4,6 +4,7 @@ import totolo
 from totolo.impl.core import TOObject, a, sa
 from totolo.impl.field import TOField
 from totolo.impl.parser import TOParser
+from totolo.story import TOStory
 
 
 class TOTest1(TOObject):
@@ -49,7 +50,7 @@ class TestField:
     def test_create(self):
         fieldtypes = ["text", "list", "kwlist", "blob", "unknown"]
         for fieldtype in fieldtypes:
-            field = self.make_field(fieldtypes)
+            field = self.make_field(fieldtype)
             assert "foo" in str(field)
 
     def test_edit_keywords(self):
@@ -79,6 +80,37 @@ class TestField:
 
 
 class TestTOParser:
+    def test_empty_lines(self):
+        ontology = totolo.files("tests/data/messy.st.txt")
+        print(ontology)
+        title_field = ontology.story["story: C"]["Title"]
+        date_field = ontology.story["story: C"]["Date"]
+        assert title_field.source[-2] == ""
+        assert date_field.source[-2] == ""
+        date_field.str() == "1920-2017"
+        title_field.str() == "C"
+
+    def test_field(self):
+        field = TOParser.make_field([
+            ":: Date", "1789", "", "",
+        ], fieldtype="date")
+        assert field.source[-1] == ""
+        assert field.source[-2] == ""
+
+    def test_entry(self):
+        story = TOParser.populate_entry(TOStory(), [
+            "a story",
+            "=======",
+            "",
+            ":: Date",
+            "1789",
+            "",
+            "",
+        ])
+        assert story.source[-1] == ""
+        assert story.source[-2] == ""
+        assert story.source[-3] == "1789"
+
     def test_oddities(self):
         to = totolo.empty()
 

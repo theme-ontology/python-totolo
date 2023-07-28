@@ -134,8 +134,41 @@ class TestIO:
                     print(line, end="")
                 assert (len(lines) == 0)
 
+    def test_write_clean(self):
+        prefix1 = "tests/data/sample-2023.07.23"
+        to1 = totolo.files(prefix1)
+        with tempfile.TemporaryDirectory() as prefix2:
+            print(f"Writing to: {prefix2}")
+            to1.write(prefix=prefix2, verbose=True)
+            print(f"Reading from: {prefix2}")
+            to2 = totolo.files(prefix2)
+            to2.write_clean()
+            to3 = totolo.files(prefix2)
+            diffs = []
+            for path, entries in to3.entries.items():
+                for idx, entry3 in enumerate(entries):
+                    entry2 = to2.entries[path][idx]
+                    if entry2.source != entry3.source:
+                        diffs.append(entry2.name)
+            assert "movie: Dr. Jekyll and Mr. Hyde (1920 II)" in diffs
+
 
 class TestFeatures:
+    def test_representation(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        nthemes = str(len(ontology.theme))
+        nstories = str(len(ontology.story))
+        ontology_str = str(ontology)
+        assert nthemes in ontology_str
+        assert nstories in ontology_str
+
+    def test_sampling(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        story = ontology.astory()
+        theme = ontology.atheme()
+        assert isinstance(story, TOStory)
+        assert isinstance(theme, TOTheme)
+
     def test_story_to_theme(self):
         ontology = totolo.files("tests/data/sample-2023.07.23")
         story = ontology.story["movie: Frankenstein (1931)"]
@@ -237,3 +270,11 @@ class TestValidation:
         assert len([msg for msg in to.validate_cycles() if "Cycle:" in msg]) == 1
         to = totolo.files("tests/data/cycles3.th.txt")
         assert len([msg for msg in to.validate_cycles() if "Cycle:" in msg]) == 1
+
+    def test_multiple_entries(self):
+        ontology = totolo.files([
+            "tests/data/to-sample-2023.07.09.st.txt",
+            "tests/data/to-sample-2023.07.09-copy.st.txt",
+        ])
+        warnings = list(ontology.validate_entries())
+        assert any("Multiple TOStory with name" in x for x in warnings)

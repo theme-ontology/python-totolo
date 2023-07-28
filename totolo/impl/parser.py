@@ -106,7 +106,7 @@ class TOParser:
         field = TOField(
             fieldtype=fieldtype,
             name=lines[0].strip(": "),
-            data=lines[1:],
+            data=[line.strip() for line in lines[1:] if line.strip()],
             source=list(lines),
         )
         if fieldtype == "kwlist":
@@ -118,27 +118,19 @@ class TOParser:
         elif fieldtype == "text":
             field.parts.append(
                 totolo.lib.textformat.add_wordwrap(
-                    "\n".join(
-                        field.data)).strip())
-        else:
+                    "\n".join(field.data)).strip()
+            )
+        else:  # date/ blob
             field.parts.append('\n'.join(field.data))
         return field
 
     @classmethod
     def populate_entry(cls, entry, lines):
         entry.source.extend(lines)
-        cleaned = []
-        for line in lines:
-            cline = line.strip()
-            if cline or (cleaned and cleaned[-1]):
-                cleaned.append(cline)  # no more than one blank line in a row
+        cleaned = [line.strip() for line in lines]
         assert len(cleaned) > 1 and cleaned[1].startswith("==="), "missing name"
-        while cleaned and not cleaned[-1]:
-            cleaned.pop()
         entry.name = cleaned[0]
         for fieldlines in cls.iter_fields(cleaned):
-            while fieldlines and not fieldlines[-1]:
-                fieldlines.pop()
             name = fieldlines[0].strip(": ")
             fieldtype = entry.field_type(name)
             field = cls.make_field(fieldlines, fieldtype)
