@@ -13,7 +13,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://upload.pypi.org/legacy/totolo
+      url: https://pypi.org/project/totolo/
 
     permissions:
       id-token: write
@@ -55,4 +55,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
-        repository-url: https://upload.pypi.org/legacy/totolo/
+        repository-url: https://pypi.org/project/totolo/
