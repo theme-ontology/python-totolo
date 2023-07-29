@@ -11,6 +11,13 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
+    environment:
+      name: pypi
+      url: https://upload.pypi.org/legacy/totolo
+
+    permissions:
+      id-token: write
+
     steps:
     - uses: actions/checkout@v3
 
@@ -44,20 +51,6 @@ jobs:
     - name: Build Package
       run: flit build
 
-
-  publish-pypi:
-    needs: test-and-build
-    
-    runs-on: ubuntu-latest
-
-    environment:
-      name: pypi
-      url: https://upload.pypi.org/legacy/totolo
-
-    permissions:
-      id-token: write
-
-    steps:
     - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
