@@ -8,8 +8,8 @@ on:
     types: [ closed ]
 
 jobs:
-  build-test-publish:
-    #if: github.event.pull_request.merged == true
+  build-testcoverage:
+    if: github.event.pull_request.merged == true || github.event_name == "push"
 
     strategy:
       matrix:
