@@ -1,12 +1,14 @@
 name: Run Tests
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [ main ]
-    types: [ opened, synchronized ]
+    types: [ closed ]
 
 jobs:
-  build-test:
+  build-test-publish:
+    if: github.event.pull_request.merged == true
+
     strategy:
       matrix:
         python-version: ["3.8", "3.x"]
@@ -27,10 +29,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
 
-    - name: Run PyLint Check
-      run: |
-        pylint --fail-under=10.0 totolo
-
     - name: Test with PyTest
-      run: |
-        pytest --cov-report=xml --cov-fail-under=100 --cov=totolo tests/
+      run: pytest --cov-report=xml --cov-fail-under=100 --cov=totolo tests/
+
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        env_vars: OS,PYTHON
+        files: ./coverage.xml
+        flags: unittests
+        fail_ci_if_error: true
+        name: codecov-umbrella
+        verbose: true

@@ -1,13 +1,11 @@
 name: Run Tests
 
 on:
-  pull_request_target:
-    branches: [ main ]
-    types: [ closed ]
+  release:
+    types: [published]
 
 jobs:
   build-test-publish:
-    if: github.event.pull_request.merged == true
 
     strategy:
       matrix:
@@ -15,6 +13,9 @@ jobs:
         os: ["ubuntu-latest"]
 
     runs-on: ${{ matrix.os }}
+
+    environment:
+      name: totolo
 
     steps:
     - uses: actions/checkout@v3
@@ -29,23 +30,26 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
 
-    - name: Run PyLint Check
+    - name: Check Package Version & Git Tag
       run: |
-        pylint --fail-under=10 totolo
+        PV = `python -c "import totolo; print('v' + totolo.__version__)"`
+        TV = `git describe --tag`
+        if [ PV != TV ]; then
+          echo "Python package __version__ doesn't match git tag. Exiting."
+          exit 1
+        fi
+
+    - name: Run PyLint Check
+      run: pylint --fail-under=10 totolo
 
     - name: Test with PyTest
-      run: |
-        pytest --cov-report=xml --cov-fail-under=100 --cov=totolo tests/
+      run: pytest --cov-report=xml --cov-fail-under=100 --cov=totolo tests/
 
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
+    - name: Build Package
+      run: flit build
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        env_vars: OS,PYTHON
-        files: ./coverage.xml
-        flags: unittests
-        fail_ci_if_error: true
-        name: codecov-umbrella
-        verbose: true
-
-    
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        repository-url: https://pypi.org/project/totolo/
