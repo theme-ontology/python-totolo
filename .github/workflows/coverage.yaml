@@ -1,4 +1,4 @@
-name: Run Tests
+name: On PR Merged, Test Coverage
 
 on:
   pull_request_target:

@@ -1,4 +1,4 @@
-name: Run Tests
+name: On PR Changed, Run Tests
 
 on:
   pull_request:
