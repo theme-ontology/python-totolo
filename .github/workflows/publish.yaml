@@ -38,7 +38,7 @@ jobs:
           echo "Python package __version__ doesn't match git tag. Exiting."
           echo "__version__='$PV'"
           echo "        tag='$TV'"
-          exit(1)
+          exit 1
         fi
 
     - name: Run PyLint Check
