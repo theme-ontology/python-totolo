@@ -15,7 +15,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     environment:
-      name: totolo
+      name: pypi
+      url: https://pypi.org/p/totolo
+
+    permissions:
+      id-token: write
 
     steps:
     - uses: actions/checkout@v3
