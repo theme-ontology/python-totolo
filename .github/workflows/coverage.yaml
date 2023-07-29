@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-test-publish:
-    if: github.event.pull_request.merged == true
+    #if: github.event.pull_request.merged == true
 
     strategy:
       matrix:
@@ -20,6 +20,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: debug
+      run: |
+        echo "${{ github.event.action }}"
+        echo "${{ github.event_name }}"
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
