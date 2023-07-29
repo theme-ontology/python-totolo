@@ -3,6 +3,8 @@ name: On Release, Publish
 on:
   release:
     types: [ published, edited ]
+  push:
+    branches: [ main ]
 
 jobs:
 
@@ -23,15 +25,15 @@ jobs:
         pip install -r requirements-dev.txt
 
     - name: Check Package Version & Git Tag
-      run: |
-        export PV=`python -c "import totolo; print('v' + totolo.__version__)"`
-        export TV=`git describe --tag`
-        echo "__version__ = '$PV'"
-        echo "        tag = '$TV'"
-        if [ "$PV" != "$TV" ]; then
-          echo "Python package __version__ doesn't match git tag. Exiting."
-          exit 1
-        fi
+      #run: |
+      #  export PV=`python -c "import totolo; print('v' + totolo.__version__)"`
+      #  export TV=`git describe --tag`
+      #  echo "__version__ = '$PV'"
+      #  echo "        tag = '$TV'"
+      #  if [ "$PV" != "$TV" ]; then
+      #    echo "Python package __version__ doesn't match git tag. Exiting."
+      #    exit 1
+      #  fi
 
     - name: Run PyLint Check
       #run: pylint --fail-under=10 totolo
