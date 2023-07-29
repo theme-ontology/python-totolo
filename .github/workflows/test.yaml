@@ -1,6 +1,8 @@
 name: On PR Changed, Run Tests
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
     types: [ opened, synchronized ]
