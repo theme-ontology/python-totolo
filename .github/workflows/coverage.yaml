@@ -1,6 +1,8 @@
 name: On PR Merged, Test Coverage
 
 on:
+  push:
+    branches: [ main ]
   pull_request_target:
     branches: [ main ]
     types: [ closed ]

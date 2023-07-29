@@ -32,8 +32,8 @@ jobs:
 
     - name: Check Package Version & Git Tag
       run: |
-        PV = `python -c "import totolo; print('v' + totolo.__version__)"`
-        TV = `git describe --tag`
+        export PV=`python -c "import totolo; print('v' + totolo.__version__)"`
+        export TV=`git describe --tag`
         if [ PV != TV ]; then
           echo "Python package __version__ doesn't match git tag. Exiting."
           exit 1
