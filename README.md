@@ -8,6 +8,77 @@
 This repository contains a Python package, totolo, for working with data from the Theme Ontology [theming repository](https://github.com/theme-ontology/theming/).
 
 
+# installation
+
+Install from PyPi:
+
+```
+pip install totolo
+```
+
+Or clone this repository and copy the `totolo` directory wherever you need it. No dependencies are required.
+
+
+# usage
+
+```python
+#: get the latest main branch version of the ontology
+>>> ontology = totolo.remote()
+>>> print(ontology)
+<2945 themes, 4475 stories>
+
+#: write it or read it locally
+>>> ontology.write("/home/mo/themes")
+>>> ontology = totolo.files("/home/mo/themes")
+>>> print(ontology)
+<2945 themes, 4475 stories>
+```
+
+Explore the themes in various ways.
+
+```python
+#: go over all the themes and find the ones you want
+>>> for theme in ontology.themes():
+...     if "romantic love" in theme.name:
+...         print(theme)
+# b'personal freedom vs. romantic love'[3]
+# b'romantic love'[3]
+
+#: check the definition of a theme
+>>> love = ontology.theme["love"]
+>>> love.print()
+(...)
+```
+
+Likewise, explore the stories:
+
+```python
+>>> for weight, theme in story.iter_themes():
+...     print(f"{weight:<15} {theme.name}")
+```
+``` 
+Choice Themes   betrayal
+Choice Themes   the lust for power
+(...)
+```
+
+Convert it to a pandas dataframe:
+
+```python
+>>> df = ontology.dataframe()
+>>> df
+```
+```
+                                 story_id             title        date                      theme        weight
+0                 theamericanshortstory01  The Music School        1974      human self-reflection  Major Themes
+1                 theamericanshortstory01  The Music School        1974                     murder  Major Themes
+...                                   ...               ...         ...                        ...           ...
+52453  videogame: Final Fantasy VI (1994)  Final Fantasy VI  1994-04-02  feral children in society  Minor Themes
+52454  videogame: Final Fantasy VI (1994)  Final Fantasy VI  1994-04-02             father and son  Minor Themes
+
+[52455 rows x 5 columns]
+```
+
 # code test coverage
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
