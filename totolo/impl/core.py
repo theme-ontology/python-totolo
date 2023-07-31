@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from copy import deepcopy
 
 
 class TOAttr:
@@ -15,7 +14,7 @@ class TOAttr:
 class TOStoredAttr(TOAttr):
     def __init__(self, datatype="blob", default=None, required=False):
         if default is None:
-            default = [] if "list" in datatype else ""
+            default = list if "list" in datatype else ""
         super().__init__(default, True)
         self.datatype = datatype
         self.required = required
@@ -47,7 +46,10 @@ class TOObjectMeta(type):
         self = super().__call__(*args, **kwargs)
         for key, value in self._to_attrs.items():
             if not value.private and not hasattr(self, key):
-                setattr(self, key, deepcopy(value.default))
+                if callable(value.default):
+                    setattr(self, key, value.default())
+                else:
+                    setattr(self, key, value.default)
         return self
 
     @classmethod

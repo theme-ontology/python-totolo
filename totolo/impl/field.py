@@ -1,3 +1,5 @@
+import totolo.lib.textformat
+
 from .core import TOObject, a
 from .keyword import TOKeyword
 
@@ -5,9 +7,9 @@ from .keyword import TOKeyword
 class TOField(TOObject):
     name = a("")
     fieldtype = a("")
-    source = a([])
-    data = a([])
-    parts = a([])
+    source = a(list)
+    data = a(list)
+    parts = a(list)
     frozen = a(False)
 
     def __setattr__(self, name, value):
@@ -56,8 +58,10 @@ class TOField(TOObject):
             yield part
 
     def text_canonical_contents(self):
-        parts = [str(x) for x in self.iter_parts()]
-        return "\n".join(parts)
+        text = "\n".join(str(x) for x in self.iter_parts())
+        if self.fieldtype == "text":
+            text = totolo.lib.textformat.add_wordwrap(text).strip()
+        return text
 
     def text_canonical(self):
         parts = [f":: {self.name}"]
