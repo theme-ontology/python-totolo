@@ -116,11 +116,10 @@ class TOParser:
             for item in TOParser.iter_listitems(field.data):
                 field.parts.append(item)
         elif fieldtype == "text":
-            field.parts.append(
-                totolo.lib.textformat.add_wordwrap(
-                    "\n".join(field.data)).strip()
-            )
-        else:  # date/ blob
+            # defer word-wrap here as it is expensive
+            field.parts.append("\n".join(field.data))
+        else:
+            # datatype: "date" and  "blob"
             field.parts.append('\n'.join(field.data))
         return field
 

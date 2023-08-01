@@ -11,6 +11,25 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "$PYTHONPATH:${workspaceFolder}",
+            }
+        },
+        {
+            "name": "Python: Profile Current File",
+            "type": "python",
+            "request": "launch",
+            "module": "cProfile",
+            "args": [
+                "-o",
+                "profiler-results.prof",
+                "${file}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "$PYTHONPATH:${workspaceFolder}",
+            }
         },
         {
             "name": "Python: Debug Tests",

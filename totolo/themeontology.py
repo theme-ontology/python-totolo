@@ -11,10 +11,10 @@ class TODict(dict):
 
 
 class ThemeOntology(TOObject):
-    theme = a(TODict())
-    story = a(TODict())
-    entries = a({})
-    basepaths = a(set())
+    theme = a(TODict)
+    story = a(TODict)
+    entries = a(dict)
+    basepaths = a(set)
 
     def __len__(self):
         return sum(len(v) for v in self.entries.values())

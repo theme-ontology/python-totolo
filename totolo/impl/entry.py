@@ -6,12 +6,12 @@ from .field import TOField
 
 class TOEntry(TOObject):
     name = a("")
-    fields = a(OrderedDict())
-    parents = a(set())
-    children = a(set())
-    source = a([])
+    fields = a(OrderedDict)
+    parents = a(set)
+    children = a(set)
+    source = a(list)
     source_location = a("<api>)")
-    ontology = a(lambda: None)
+    ontology = a(lambda: (lambda: None))
 
     def __lt__(self, other):
         return str(self) < str(other)
