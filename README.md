@@ -81,6 +81,18 @@ Convert it to a pandas dataframe:
 [52455 rows x 5 columns]
 ```
 
+# Getting Help
+
+If you encounter a bug, please file a minimal reproducible example on
+[GitHub issues](https://github.com/theme-ontology/python-totolo/issues/). For
+feature requests and other matters, please post on the [GitHub discussions
+board](https://github.com/theme-ontology/python-totolo/discussions/).
+
+## License
+
+All code in this repository is published with the
+[MIT](https://opensource.org/license/mit/) license.
+
 # Code Test Coverage
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
