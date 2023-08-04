@@ -167,8 +167,9 @@ class ThemeOntology(TOObject):
             for idx, entry in enumerate(entries):
                 if idx == 0 and entry.name in entry["Collections"]:
                     field = entry.get(cskey)
-                    parts = [x for x in field.parts if x not in sids]
-                    if parts != field.parts:
+                    all_parts = list(field)
+                    parts = [x for x in all_parts if x not in sids]
+                    if parts != all_parts:
                         entry = copy.deepcopy(entry)
                         if parts:
                             field = entry.setdefault(cskey)

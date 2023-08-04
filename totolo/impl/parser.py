@@ -1,6 +1,7 @@
 import os
 import re
 import weakref
+from itertools import islice
 from typing import Generator, Iterable, List, Tuple
 
 import totolo.lib.files
@@ -10,6 +11,10 @@ from ..story import TOStory
 from ..theme import TOTheme
 from .field import TOField
 from .keyword import TOKeyword
+
+G = r"[^\(\)\{\}\[\]]"
+KW_PATTERN = re.compile("([\\[\\]\\{\\}\\<\\>\\n])")
+KW_PATTERN2 = re.compile(f"(^{G}*|\\<{G}*\\>|\\[{G}*\\]|{{{G}*\\}})")
 
 
 class TOParser:
@@ -48,88 +53,101 @@ class TOParser:
             yield linebuffer
 
     @staticmethod
-    def iter_listitems(lines: Iterable[str]) -> str:
-        """
-        Turn a list of strings into items. Items may be newline or comma separated.
-        """
-        for line in lines:
-            # note: once upon a time we used to have multiple items separated by commas
-            # on a single line but that is no longer permitted.
-            item = line.strip()
-            if item:
-                yield item
-
-    @staticmethod
     def iter_kwitems(
         lines: Iterable[str]
     ) -> Generator[Tuple[str, str, str, str], None, None]:
         """
-        Turn a list of strings into kewyword items. Items may be newline or comma
-        separated. Items may contain data in () [] {} parentheses.
+        Turn a list of strings into kewyword items.
+        Items are un-enclosed newline character separated.
+        Items may contain data in () [] {} parentheses.
+        Parantheses may not contain newline characters (once they might).
+
+        This is one of the most time consuming passages in parsing a large ontology.
         """
-        def dict2row(tokendict):
-            tkw = tokendict.get("", "").strip()
-            tmotivation = tokendict.get("[", "").strip()
-            tcapacity = tokendict.get("<", "").strip()
-            tnotes = tokendict.get("{", "").strip()
-            return tkw, tcapacity, tmotivation, tnotes
+        brackets = "<[{"
+        for line in lines:
+            row = ["", "", "", ""]
+            parts = KW_PATTERN2.findall(line)
+            for part in parts:
+                if part:
+                    try:
+                        ii = brackets.index(part[0])
+                        row[ii + 1] = part[1:-1].strip()
+                    except BaseException:
+                        row[0] = part.strip()
+            if row[0]:
+                yield row
 
-        field = "\n".join(lines)
-        token = {}
-        delcorr = {"[": "]", "{": "}", "<": ">"}
-        farr = re.split("([\\[\\]\\{\\}\\<\\>,\\n])", field)
-        state = ""
-        splitters = ",\n"
+    @staticmethod
+    def iter_kwitems_strict(
+        lines: Iterable[str]
+    ) -> Generator[Tuple[str, str, str, str], None, None]:
+        """
+        Turn a list of strings into kewyword items.
+        Items are un-enclosed newline character separated.
+        Items may contain data in () [] {} parentheses.
+        Parantheses may contain newline characters.
 
-        for part in farr:
-            if part in delcorr:
-                state = part
-            elif part in delcorr.values():
-                if delcorr.get(state, None) == part:
-                    state = ""
+        This is one of the most time consuming passages in parsing a large ontology.
+        """
+        ramp = " <[{>]}"
+        for line in lines:
+            field_array = KW_PATTERN.split(line)
+            state_idx = 0
+            close_bracket = ""
+            acc = []
+            row = ["", "", "", ""]
+
+            for part in field_array:
+                if len(part) == 1 and part in ramp:
+                    row[state_idx] += "".join(acc)
+                    acc = []
+                    if part == close_bracket:
+                        state_idx = 0
+                        close_bracket = ""
+                    elif close_bracket:
+                        raise AssertionError(f"Missing '{close_bracket}' in: {row}")
+                    else:
+                        state_idx = ramp.index(part)
+                        if state_idx > 3:
+                            raise AssertionError(f"Unexpected {part} in: {row}")
+                        close_bracket = ramp[state_idx + 3]
                 else:
-                    raise AssertionError(
-                        f"Malformed field (bracket mismatch):\n {field}"
-                    )
-            elif part in splitters and not state:
-                tokrow = dict2row(token)
-                if not tokrow[0].strip():
-                    pass  # we allow splitting by both newline and comma
-                else:
-                    yield tokrow
-                token = {}
-            else:
-                token[state] = token.get(state, "") + part
+                    acc.append(part)
+
+            row[state_idx] += "".join(acc)
+            if row[0]:
+                yield tuple(x.strip() for x in row)
 
     @classmethod
     def make_field(cls, lines, fieldtype):
-        field = TOField(
+        return TOField(
             fieldtype=fieldtype,
             name=lines[0].strip(": "),
-            data=[line.strip() for line in lines[1:] if line.strip()],
             source=list(lines),
         )
+
+    @classmethod
+    def init_field(cls, field):
+        fieldtype = field.fieldtype
         if fieldtype == "kwlist":
-            for kwtuple in TOParser.iter_kwitems(field.data):
+            data_iter = islice(field.source, 1, 1000)
+            for kwtuple in TOParser.iter_kwitems(data_iter):
                 field.parts.append(TOKeyword(*kwtuple))
         elif fieldtype == "list":
-            for item in TOParser.iter_listitems(field.data):
-                field.parts.append(item)
+            data_iter = filter(None, islice(field.source, 1, 1000))
+            field.parts.extend(data_iter)
         elif fieldtype == "text":
-            # defer word-wrap here as it is expensive
-            field.parts.append("\n".join(field.data))
-        else:
-            # datatype: "date" and  "blob"
-            field.parts.append('\n'.join(field.data))
+            field.parts.append("\n".join(field.source[1:]).strip())
+        else:  # for datatype "date" and  "blob"
+            field.parts.append('\n'.join(field.source[1:]).strip())
         return field
 
     @classmethod
     def populate_entry(cls, entry, lines):
         entry.source.extend(lines)
-        cleaned = [line.strip() for line in lines]
-        assert len(cleaned) > 1 and cleaned[1].startswith("==="), "missing name"
-        entry.name = cleaned[0]
-        for fieldlines in cls.iter_fields(cleaned):
+        entry.name = lines[0]
+        for fieldlines in cls.iter_fields(lines):
             name = fieldlines[0].strip(": ")
             fieldtype = entry.field_type(name)
             field = cls.make_field(fieldlines, fieldtype)

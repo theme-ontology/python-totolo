@@ -1,6 +1,6 @@
+flit
+pandas
+pylint
 pytest
 pytest-cov
-pylint
-pandas
-flit
-
+snakeviz

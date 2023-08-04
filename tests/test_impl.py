@@ -18,10 +18,9 @@ class TOTest1(TOObject):
 
 class TestTOObject:
     def test_object_attributes(self):
-        a = TOTest1(qq=2, bb="monkey", a2="fox")
+        a = TOTest1(a2="fox")
         assert a.a1 == "foo"
         assert a.a2 == "fox"
-        assert a.bb == "monkey"
         attrs = [k for k, _ in a.iter_attrs()]
         sattrs = [k for k, _ in a.iter_stored()]
         assert attrs == ["a1", "a2", "a3", "bb", "cc", "aa"]
@@ -58,9 +57,7 @@ class TestTOObject:
 
 class TestField:
     def make_field(self, fieldtype="text"):
-        field = TOField(name="foo", fieldtype=fieldtype)
-        field.data.append("data line")
-        field.source.append("source line")
+        field = TOField(name="foo", fieldtype=fieldtype, source=["source line"]).setup()
         if fieldtype == "kwlist":
             field.insert_kw(
                 keyword="foo",
@@ -153,21 +150,21 @@ class TestTOParser:
         assert story.source[-2] == ""
         assert story.source[-3] == "1789"
 
-    def test_oddities(self):
+    def test_bad_url(self):
         ontology = totolo.empty()
-
         with pytest.raises(ValueError):
             TOParser.add_url(ontology, "gobbledygook")
 
+    def test_bad_kwfield(self):
         with pytest.raises(AssertionError):
-            list(TOParser.iter_kwitems(["malformed ] field"]))
+            list(TOParser.iter_kwitems_strict(["malformed ] field"]))
         with pytest.raises(AssertionError):
-            list(TOParser.iter_kwitems(["malformed <[]} field"]))
+            list(TOParser.iter_kwitems_strict(["malformed <[]} field"]))
         with pytest.raises(AssertionError):
-            list(TOParser.iter_kwitems(["malformed {}> field"]))
+            list(TOParser.iter_kwitems_strict(["malformed {}> field"]))
         with pytest.raises(AssertionError):
-            list(TOParser.iter_kwitems(["malformed <<>> field"]))
+            list(TOParser.iter_kwitems_strict(["malformed <<>> field"]))
         with pytest.raises(AssertionError):
-            list(TOParser.iter_kwitems(["malformed {{}} field"]))
+            list(TOParser.iter_kwitems_strict(["malformed {{}} field"]))
         with pytest.raises(AssertionError):
-            list(TOParser.iter_kwitems(["malformed [[]] field"]))
+            list(TOParser.iter_kwitems_strict(["malformed [[]] field"]))

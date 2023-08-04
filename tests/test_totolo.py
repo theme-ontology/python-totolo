@@ -69,13 +69,13 @@ class TestIO:
         assert t.name == "coping with senility"
         assert t["Description"].str().startswith(
             "A character copes with a loss of their mental faculties")
-        assert t["Parents"].list() == ["human health condition"]
+        assert list(t["Parents"]) == ["human health condition"]
         assert t["Notes"].str().startswith(
             "This theme is used for example when")
         assert t["Examples"].str().startswith(
             'In tng3x23 "Sarek", Sarek coped')
-        assert t["References"].list() == ["https://en.wikipedia.org/wiki/Dementia"]
-        assert t["Aliases"].list() == ["coping with dementia"]
+        assert list(t["References"]) == ["https://en.wikipedia.org/wiki/Dementia"]
+        assert list(t["Aliases"]) == ["coping with dementia"]
 
     def test_story_attributes(self):
         name = "play: The Taming of the Shrew (1592)"
@@ -90,11 +90,11 @@ class TestIO:
         assert s.year == 1592
         assert "a drunken tinker named Christopher Sly" in s["Description"].str()
         assert s["Authors"].str() == "William Shakespeare"
-        assert s["References"].list() == [
+        assert list(s["References"]) == [
             "https://en.wikipedia.org/wiki/The_Taming_of_the_Shrew"
         ]
-        assert s["Ratings"].list() == ["4 <mikael>"]
-        assert s["Collections"].list() == []
+        assert list(s["Ratings"]) == ["4 <mikael>"]
+        assert list(s["Collections"]) == []
 
     def test_fetch_and_write(self):
         print("Downloading master...")

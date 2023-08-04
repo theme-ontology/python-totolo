@@ -28,22 +28,23 @@ class TOEntry(TOObject):
 
     def __setitem__(self, key, value):
         if isinstance(value, list):
-            value = TOField(
+            field = TOField(
                 name=key,
                 fieldtype="list",
                 source=value,
-                data=value,
                 parts=value
             )
-        elif not isinstance(value, TOField):
+        elif isinstance(value, TOField):
+            field = value
+        else:
             data = str(value)
-            value = TOField(
+            field = TOField(
                 name=key,
                 fieldtype="blob",
                 source=[data],
-                data=[data],
-                parts=[data])
-        self.fields[key] = value
+                parts=[data],
+            )
+        self.fields[key] = field.setup()
 
     def __delitem__(self, key):
         del self.fields[key]
@@ -67,6 +68,11 @@ class TOEntry(TOObject):
         yield from self._dfs("children", self._lookup())
 
     def validate(self):
+        yield from self.validate_junklines()
+        yield from self.validate_fields()
+        yield from self.validate_keywords()
+
+    def validate_junklines(self):
         junklines = []
         for idx, line in enumerate(self.source):
             if idx > 1:
@@ -79,9 +85,21 @@ class TOEntry(TOObject):
             if len(junkmsg) > 13:
                 junkmsg = junkmsg[:10] + "..."
             yield f"{self.name}: junk in entry header: {junkmsg}"
+
+    def validate_fields(self):
         for field in self.fields.values():
             if self.field_type(field.name) == "unknown":
                 yield f"{self.name}: unknown field '{field.name}'"
+
+    def validate_keywords(self):
+        for field in self.fields.values():
+            if field.fieldtype == "kwlist":
+                from .parser import TOParser
+                data_iter = filter(None, (x.strip() for x in field.source[1:]))
+                try:
+                    list(TOParser.iter_kwitems_strict(data_iter))
+                except AssertionError as exc:
+                    yield f"In {self.name}: {exc.args[0]}"
 
     def text_canonical(self):
         lines = [self.name, "=" * len(self.name), ""]
