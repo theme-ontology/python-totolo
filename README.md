@@ -1,14 +1,14 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/totolo.svg)](https://badge.fury.io/py/totolo)
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graph/badge.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
-
+[![Life cycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
  
-# python totolo
+# Python Totolo
 
 This repository contains a Python package, totolo, for working with data from the Theme Ontology [theming repository](https://github.com/theme-ontology/theming/).
 
 
-# installation
+# Installation
 
 Install from PyPi:
 
@@ -19,7 +19,7 @@ pip install totolo
 Or clone this repository and copy the `totolo` directory wherever you need it. No dependencies are required.
 
 
-# usage
+# Basic Usage
 
 ```python
 #: get the latest main branch version of the ontology
@@ -34,7 +34,7 @@ Or clone this repository and copy the `totolo` directory wherever you need it. N
 <2945 themes, 4475 stories>
 ```
 
-Explore the themes in various ways.
+Explore the themes:
 
 ```python
 #: go over all the themes and find the ones you want
@@ -50,12 +50,13 @@ Explore the themes in various ways.
 (...)
 ```
 
-Likewise, explore the stories:
+Explore the stories:
 
 ```python
 >>> for weight, theme in story.iter_themes():
 ...     print(f"{weight:<15} {theme.name}")
 ```
+
 ``` 
 Choice Themes   betrayal
 Choice Themes   the lust for power
@@ -68,6 +69,7 @@ Convert it to a pandas dataframe:
 >>> df = ontology.dataframe()
 >>> df
 ```
+
 ```
                                  story_id             title        date                      theme        weight
 0                 theamericanshortstory01  The Music School        1974      human self-reflection  Major Themes
@@ -79,7 +81,7 @@ Convert it to a pandas dataframe:
 [52455 rows x 5 columns]
 ```
 
-# code test coverage
+# Code Test Coverage
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
 
