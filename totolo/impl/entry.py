@@ -92,9 +92,9 @@ class TOEntry(TOObject):
                 yield f"{self.name}: unknown field '{field.name}'"
 
     def validate_keywords(self):
+        from .parser import TOParser  # pylint: disable=cyclic-import
         for field in self.fields.values():
             if field.fieldtype == "kwlist":
-                from .parser import TOParser
                 data_iter = filter(None, (x.strip() for x in field.source[1:]))
                 try:
                     list(TOParser.iter_kwitems_strict(data_iter))

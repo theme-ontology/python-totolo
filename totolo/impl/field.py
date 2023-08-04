@@ -103,6 +103,6 @@ class TOField(TOObject):
     def setup(self):
         if not self.parts and not self.frozen:
             # this used to be done immediately but is now defered for efficiency
-            from .parser import TOParser
+            from .parser import TOParser  # pylint: disable=cyclic-import
             TOParser.init_field(self)
         return self

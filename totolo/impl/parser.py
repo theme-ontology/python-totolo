@@ -71,9 +71,9 @@ class TOParser:
             for part in parts:
                 if part:
                     try:
-                        ii = brackets.index(part[0])
-                        row[ii + 1] = part[1:-1].strip()
-                    except BaseException:
+                        idx = brackets.index(part[0])
+                        row[idx + 1] = part[1:-1].strip()
+                    except ValueError:
                         row[0] = part.strip()
             if row[0]:
                 yield row
