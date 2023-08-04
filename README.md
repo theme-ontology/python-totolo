@@ -1,6 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/totolo.svg)](https://badge.fury.io/py/totolo)
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graph/badge.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
 [![Life cycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![downloads](https://img.shields.io/pypi/dm/totolo.svg)](https://pypistats.org/packages/totolo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
  
 # Python Totolo
