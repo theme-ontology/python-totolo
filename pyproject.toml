@@ -25,6 +25,8 @@ disable = [
     "missing-function-docstring",       # don't want it
     "too-few-public-methods",           # don't want it
     "too-many-arguments",               # borderline acceptable
+    "super-init-not-called",            # borderline acceptable
+    "import-outside-toplevel",          # borderline acceptable
     "no-member",                        # pylint gets it wrong
     "unsupported-membership-test",      # pylint gets it wrong
     "not-callable",                     # pylint gets it wrong

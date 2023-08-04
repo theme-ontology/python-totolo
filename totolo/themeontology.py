@@ -37,7 +37,7 @@ class ThemeOntology(TOObject):
         return random.sample(list(self.theme.values()), 1)[0]
 
     def dataframe(self, implied_themes=True):
-        import pandas as pd  # pylint: disable=C0415
+        import pandas as pd
         data = []
         for story in self.stories():
             for weight, part in story.iter_theme_entries():
@@ -167,8 +167,9 @@ class ThemeOntology(TOObject):
             for idx, entry in enumerate(entries):
                 if idx == 0 and entry.name in entry["Collections"]:
                     field = entry.get(cskey)
-                    parts = [x for x in field.parts if x not in sids]
-                    if parts != field.parts:
+                    all_parts = list(field)
+                    parts = [x for x in all_parts if x not in sids]
+                    if parts != all_parts:
                         entry = copy.deepcopy(entry)
                         if parts:
                             field = entry.setdefault(cskey)

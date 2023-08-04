@@ -40,16 +40,18 @@ class TOObjectMeta(type):
                 to_attrs[key] = value
                 del attr[key]
         attr["_to_attrs"] = to_attrs
+        attr["_to_attrs_public"] = {k: v for k, v in to_attrs.items() if not v.private}
         return super().__new__(mcs, name, bases, attr)
 
     def __call__(cls, *args, **kwargs):
         self = super().__call__(*args, **kwargs)
-        for key, value in self._to_attrs.items():
-            if not value.private and not hasattr(self, key):
+        target = self.__dict__
+        for key, value in self._to_attrs_public.items():
+            if not key in target:
                 if callable(value.default):
-                    setattr(self, key, value.default())
+                    target[key] = value.default()
                 else:
-                    setattr(self, key, value.default)
+                    target[key] = value.default
         return self
 
     @classmethod
@@ -66,13 +68,12 @@ def sa(*args, **kwargs):
 
 
 class TOObject(metaclass=TOObjectMeta):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__()
-        for arg, key in zip(args, self._to_attrs.keys()):
-            setattr(self, key, arg)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        self.get_attr = self._to_attrs.get
+        self.__dict__.update(kwargs)
+
+    def get_attr(self, key):
+        return self._to_attrs.get(key)
 
     def iter_attrs(self):
         for key, value in self._to_attrs.items():

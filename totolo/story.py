@@ -29,9 +29,8 @@ class TOStory(TOEntry):
         """
         for weight in ["Choice Themes", "Major Themes", "Minor Themes", "Not Themes"]:
             field = self.get(weight)
-            if field:
-                for part in field.iter_parts():
-                    yield weight, part
+            for part in field or ():
+                yield weight, part
 
     def iter_themes(self):
         """
