@@ -23,6 +23,9 @@ Or clone this repository and copy the `totolo` directory wherever you need it. N
 ## Basic Usage
 
 ```python
+#: import package
+>>> import totolo
+
 #: get the latest main branch version of the ontology
 >>> ontology = totolo.remote()
 >>> print(ontology)
