@@ -33,4 +33,5 @@ disable = [
     "unsubscriptable-object",           # pylint gets it wrong
     "unsupported-assignment-operation", # pylint gets it wrong
     "unsupported-delete-operation",     # pylint gets it wrong
+    "super-with-arguments",             # pylint gets it wrong
 ]
