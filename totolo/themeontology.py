@@ -4,10 +4,30 @@ import random
 from collections import defaultdict
 
 from .impl.core import TOObject, a
+from .theme import TOTheme
+from .story import TOStory
+
+
+class TOSet(set):
+    def ancestors(self):
+        return TOSet(a for o in self for a in o.ancestors())
+
+    def descendants(self):
+        return TOSet(a for o in self for a in o.descendants())
 
 
 class TODict(dict):
-    pass
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return super().__getitem__(key)
+        try:
+            obj_iter = iter(key)
+        except TypeError as te:
+            raise TypeError(
+                f"TODict indices must be string or iterable, not {type(key)}"
+            ) from te
+        return TOSet(super(TODict, self).__getitem__(x) for x in obj_iter)
+
 
 
 class ThemeOntology(TOObject):
@@ -36,19 +56,75 @@ class ThemeOntology(TOObject):
     def atheme(self):
         return random.sample(list(self.theme.values()), 1)[0]
 
-    def dataframe(self, implied_themes=True):
+    def dataframe(
+        self,
+        subset=None,
+        implied_themes=False,
+        motivation=False,
+        descriptions=False,
+    ):
         import pandas as pd
+
+        story_ids, theme_ids = [], []
+        if subset:
+            story_ids = set(x.name for x in subset if isinstance(x, TOStory))
+            theme_ids = set(x.name for x in subset if isinstance(x, TOTheme))
+
+        headers = ["story_id", "title", "date", "theme_id", "weight"]
+        if motivation:
+            headers.append("motivation")
+        if descriptions:
+            headers.append("story_description")
+            headers.append("theme_definition")
+
         data = []
         for story in self.stories():
-            for weight, part in story.iter_theme_entries():
-                themes = [part.keyword]
-                if implied_themes and part.keyword in self.theme:
-                    theme = self.theme[part.keyword]
-                    themes.extend(theme.ancestors())
-                data.append([story.name, story["Title"],
-                            story["Date"], part.keyword, weight])
-        return pd.DataFrame(
-            data, columns=["story_id", "title", "date", "theme", "weight"])
+            if subset:
+                if story.name not in story_ids:
+                    if not any(
+                        (part.keyword in theme_ids)
+                        for _weight, part in story.iter_theme_entries()
+                    ):
+                        continue
+            data.extend(self._dataframe_records_for_story(
+                story,
+                implied_themes=implied_themes,
+                motivation=motivation,
+                descriptions=descriptions,
+            ))
+
+        return pd.DataFrame(data, columns=headers)
+
+    def _dataframe_records_for_story(
+        self, story,
+        implied_themes=False,
+        motivation=False,
+        descriptions=False,
+    ):
+        data = []
+        for weight, part in story.iter_theme_entries():
+            themes = [part.keyword]
+            if implied_themes and part.keyword in self.theme:
+                theme = self.theme[part.keyword]
+                themes.extend(theme.ancestors())
+            for theme in themes:
+                record = [
+                    story.name,
+                    story["Title"],
+                    story["Date"],
+                    theme,
+                    weight,
+                ]
+                if motivation:
+                    record.append(part.motivation)
+                if descriptions:
+                    record.append(story.verbose_description())
+                    record.append(
+                        self.theme[theme].verbose_description()
+                        if theme in self.theme else ""
+                    )
+                data.append(record)
+        return data
 
     def validate(self):
         yield from self.validate_entries()
@@ -133,7 +209,8 @@ class ThemeOntology(TOObject):
         quicker traversal of this hierarchy in both directions, for both themes
         and stories. This method is invoked when the ontology has changed. It is
         invoked automatically by the parser and usually doesn't need to be invoked
-        manually.
+        manually. It would need to invoke if the structure of the ontology is edited
+        outside of the parser.
         """
         for theme in self.themes():
             theme.parents.clear()
