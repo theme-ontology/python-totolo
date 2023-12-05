@@ -45,6 +45,7 @@
                 "-c",
                 "pytest.ini"
             ],
+            "internalConsoleOptions": "openOnSessionStart",
         }
     ]
 }

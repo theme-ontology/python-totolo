@@ -262,9 +262,13 @@ class TestFeatures:
 
     def test_dataframe_subset_with_extras(self):
         ontology = totolo.files("tests/data/sample-2023.07.23")
-        subset = ontology.theme[["electricity"]]
+        subset_stories = [
+            s.name for s in ontology.stories() if s.name.startswith("movie:")
+        ]
+        subset_themes = ontology.theme[["electricity"]]
         df = ontology.dataframe(
-            subset=subset,
+            subset_stories=subset_stories,
+            subset_themes=subset_themes,
             implied_themes=True,
             motivation=True,
             descriptions=True,
@@ -278,8 +282,20 @@ class TestFeatures:
         assert all(set(df["story_description"]))
         assert all(set(df["motivation"]))
         assert len(set(df["story_id"])) == 3
-        assert len(set(df["theme_id"])) == 67
-        assert len(set(df["motivation"])) == 36
+        assert len(set(df["theme_id"])) == 1
+        assert len(set(df["motivation"])) == 3
+
+    def test_toset_dataframe(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        df = ontology.theme[["electricity"]].dataframe()
+        assert len(df) == 3
+        subset_stories = [
+            s.name for s in ontology.stories() if s.name.startswith("movie:")
+        ]
+        df = ontology.story[subset_stories].dataframe()
+        assert len(df) == 505
+        df = ontology.theme[[]].dataframe()
+        assert len(df) == 0
 
     def test_theme_access_list(self):
         prefix = "tests/data/sample-2023.07.23"
