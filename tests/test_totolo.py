@@ -193,7 +193,7 @@ class TestFeatures:
 
     def test_theme_ancestors(self):
         ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
-        themes = list(ontology.theme["love"].ancestors())
+        themes = [x.name for x in ontology.theme["love"].ancestors()]
         assert set(themes) == set([
             'love',
             'human emotion',
@@ -201,11 +201,11 @@ class TestFeatures:
             'personal human experience',
             'the human world',
         ])
-        assert list(TOTheme(name="foo").ancestors()) == ["foo"]
+        assert list(TOTheme(name="foo").iter_ancestor_names()) == ["foo"]
 
     def test_theme_descendants(self):
         ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
-        themes = list(ontology.theme["love"].descendants())
+        themes = list(x.name for x in ontology.theme["love"].descendants())
         assert set(themes) == set([
             'love',
             'romantic love',
@@ -233,34 +233,80 @@ class TestFeatures:
             'matrimonial love',
             'filial love',
         ])
-        assert list(TOTheme(name="foo").descendants()) == ["foo"]
+        assert list(TOTheme(name="foo").iter_descendant_names()) == ["foo"]
 
     def test_story_ancestors(self):
         ontology = totolo.files("tests/data/storytree.st.txt")
-        stories = list(ontology.story["Collection: B2"].ancestors())
+        stories = [x.name for x in ontology.story["Collection: B2"].ancestors()]
         assert set(stories) == set(
             ['Collection: B2', 'Collection: A', 'Collection: B1'])
-        assert list(TOStory(name="foo").ancestors()) == ["foo"]
+        assert list(TOStory(name="foo").iter_ancestor_names()) == ["foo"]
 
     def test_story_descendants(self):
         ontology = totolo.files("tests/data/storytree.st.txt")
-        stories = list(ontology.story["Collection: B2"].descendants())
+        stories = [
+            x.name for x in ontology.story["Collection: B2"].descendants()
+        ]
         assert set(stories) == set(['Collection: B2', 'story: C'])
-        assert list(TOStory(name="foo").descendants()) == ["foo"]
+        assert list(TOStory(name="foo").iter_descendant_names()) == ["foo"]
 
     def test_dataframe(self):
         ontology = totolo.files("tests/data/sample-2023.07.23")
         df = ontology.dataframe()
         set_pandas_display_options()
-        themed_stories = len(
-            [name for name in ontology.story if not name.startswith("Collection")])
+        themed_stories = len([
+            name for name in ontology.story if not name.startswith("Collection")
+        ])
         story_themes = sum(len(list(s.iter_theme_entries()))
                            for s in ontology.story.values())
         set_pandas_display_options()
-        print()
-        print(df[:50])
         assert len(df) == story_themes
         assert df["story_id"].nunique() == themed_stories
+
+    def test_dataframe_subset_with_extras(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        subset_stories = [
+            s.name for s in ontology.stories() if s.name.startswith("movie:")
+        ]
+        subset_themes = ontology.theme[["electricity"]]
+        df = ontology.dataframe(
+            subset_stories=subset_stories,
+            subset_themes=subset_themes,
+            implied_themes=True,
+            motivation=True,
+            descriptions=True,
+        )
+        assert sorted(set(df["story_id"])) == [
+            'movie: Bride of Frankenstein (1935)',
+            'movie: Frankenstein (1931)',
+            'movie: Son of Frankenstein (1939)',
+        ]
+        assert all(set(df["theme_definition"]))
+        assert all(set(df["story_description"]))
+        assert all(set(df["motivation"]))
+        assert len(set(df["story_id"])) == 3
+        assert len(set(df["theme_id"])) == 1
+        assert len(set(df["motivation"])) == 3
+
+    def test_theme_access_list(self):
+        prefix = "tests/data/sample-2023.07.23"
+        ontology = totolo.files(prefix)
+        names = ["jealousy", "love"]
+        res = ontology.theme[names]
+        assert sorted(t.name for t in res) == names
+
+    def test_theme_access_generator(self):
+        prefix = "tests/data/sample-2023.07.23"
+        ontology = totolo.files(prefix)
+        names = ["jealousy", "love"]
+        res = ontology.theme[iter(names)]
+        assert sorted(t.name for t in res) == names
+
+    def test_theme_access_error(self):
+        prefix = "tests/data/sample-2023.07.23"
+        ontology = totolo.files(prefix)
+        with pytest.raises(TypeError):
+            toset = ontology.theme[123]
 
 
 class TestValidation:

@@ -22,6 +22,12 @@ class TOStory(TOEntry):
     Not_Themes = sa("kwlist")
     Other_Keywords = sa("kwlist")
 
+    def ancestors(self):
+        return self.ontology().story[self.iter_ancestor_names()]
+
+    def descendants(self):
+        return self.ontology().story[self.iter_descendant_names()]
+
     def iter_theme_entries(self):
         """
         Yield (weight, TOKeyword) pairs. TOKeyword contains the comment and other

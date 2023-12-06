@@ -66,8 +66,8 @@ bar
         warnings = list(entry.validate())
         assert len(warnings) == 1
         assert "junk in entry" in warnings[0]
-        assert list(entry.ancestors()) == ["foo"]
-        assert list(entry.descendants()) == ["foo"]
+        assert list(entry.iter_ancestor_names()) == ["foo"]
+        assert list(entry.iter_descendant_names()) == ["foo"]
         with pytest.raises(KeyError):
             del entry["foo"]
 

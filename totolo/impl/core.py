@@ -40,7 +40,9 @@ class TOObjectMeta(type):
                 to_attrs[key] = value
                 del attr[key]
         attr["_to_attrs"] = to_attrs
-        attr["_to_attrs_public"] = {k: v for k, v in to_attrs.items() if not v.private}
+        attr["_to_attrs_public"] = {
+            k: v for k, v in to_attrs.items() if not v.private
+        }
         return super().__new__(mcs, name, bases, attr)
 
     def __call__(cls, *args, **kwargs):

@@ -12,7 +12,7 @@ from ..theme import TOTheme
 from .field import TOField
 from .keyword import TOKeyword
 
-G = r"[^\(\)\{\}\[\]]"
+G = r"[^\<\>\{\}\[\]]"
 KW_PATTERN = re.compile("([\\[\\]\\{\\}\\<\\>\\n])")
 KW_PATTERN2 = re.compile(f"(^{G}*|\\<{G}*\\>|\\[{G}*\\]|{{{G}*\\}})")
 
@@ -60,7 +60,7 @@ class TOParser:
         Turn a list of strings into kewyword items.
         Items are un-enclosed newline character separated.
         Items may contain data in () [] {} parentheses.
-        Parantheses may not contain newline characters (once they might).
+        Parantheses may not contain newline characters.
 
         This is one of the most time consuming passages in parsing a large ontology.
         """

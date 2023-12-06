@@ -12,6 +12,12 @@ class TOTheme(TOEntry):
     References = sa("list")
     Aliases = sa("list")
 
+    def ancestors(self):
+        return self.ontology().theme[self.iter_ancestor_names()]
+
+    def descendants(self):
+        return self.ontology().theme[self.iter_descendant_names()]
+
     def verbose_description(self):
         description = str(self.get("Description"))
         examples = str(self.get("Examples")).strip()

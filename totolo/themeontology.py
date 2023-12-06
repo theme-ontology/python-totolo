@@ -4,10 +4,7 @@ import random
 from collections import defaultdict
 
 from .impl.core import TOObject, a
-
-
-class TODict(dict):
-    pass
+from .collection import TODict
 
 
 class ThemeOntology(TOObject):
@@ -36,19 +33,84 @@ class ThemeOntology(TOObject):
     def atheme(self):
         return random.sample(list(self.theme.values()), 1)[0]
 
-    def dataframe(self, implied_themes=True):
+    def dataframe(
+        self,
+        subset_stories=(),
+        subset_themes=(),
+        implied_themes=False,
+        motivation=False,
+        descriptions=False,
+    ):
         import pandas as pd
+
+        story_ids = list(self._subset_as_names(subset_stories))
+        theme_ids = list(self._subset_as_names(subset_themes))
+
+        headers = ["story_id", "title", "date", "theme_id", "weight"]
+        if motivation:
+            headers.append("motivation")
+        if descriptions:
+            headers.append("story_description")
+            headers.append("theme_definition")
+
         data = []
         for story in self.stories():
-            for weight, part in story.iter_theme_entries():
-                themes = [part.keyword]
-                if implied_themes and part.keyword in self.theme:
-                    theme = self.theme[part.keyword]
-                    themes.extend(theme.ancestors())
-                data.append([story.name, story["Title"],
-                            story["Date"], part.keyword, weight])
-        return pd.DataFrame(
-            data, columns=["story_id", "title", "date", "theme", "weight"])
+            if story_ids and story.name not in story_ids:
+                continue
+            records = self._dataframe_records_for_story(
+                story,
+                implied_themes=implied_themes,
+                motivation=motivation,
+                descriptions=descriptions,
+            )
+            if theme_ids:
+                records = [r for r in records if r[3] in theme_ids]
+            data.extend(records)
+
+        return pd.DataFrame(data, columns=headers)
+
+    @staticmethod
+    def _subset_as_names(subset):
+        if hasattr(subset, "names"):
+            yield from subset.names()
+        elif hasattr(subset, "name"):
+            yield subset.name
+        elif isinstance(subset, str):
+            yield subset
+        else:
+            for x in subset:
+                yield from ThemeOntology._subset_as_names(x)
+
+    def _dataframe_records_for_story(
+        self, story,
+        implied_themes=False,
+        motivation=False,
+        descriptions=False,
+    ):
+        data = []
+        for weight, part in story.iter_theme_entries():
+            themes = [part.keyword]
+            if implied_themes and part.keyword in self.theme:
+                theme = self.theme[part.keyword]
+                themes.extend(theme.ancestors())
+            for theme in themes:
+                record = [
+                    story.name,
+                    story["Title"],
+                    story["Date"],
+                    theme,
+                    weight,
+                ]
+                if motivation:
+                    record.append(part.motivation)
+                if descriptions:
+                    record.append(story.verbose_description())
+                    record.append(
+                        self.theme[theme].verbose_description()
+                        if theme in self.theme else ""
+                    )
+                data.append(record)
+        return data
 
     def validate(self):
         yield from self.validate_entries()
@@ -133,7 +195,8 @@ class ThemeOntology(TOObject):
         quicker traversal of this hierarchy in both directions, for both themes
         and stories. This method is invoked when the ontology has changed. It is
         invoked automatically by the parser and usually doesn't need to be invoked
-        manually.
+        manually. It would need to invoke if the structure of the ontology is edited
+        outside of the parser.
         """
         for theme in self.themes():
             theme.parents.clear()
