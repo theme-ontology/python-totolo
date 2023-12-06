@@ -24,17 +24,17 @@ Or clone this repository and copy the `totolo` directory wherever you need it. N
 
 ```python
 #: import package
->>> import totolo
+    >>> import totolo
 
 #: get the latest main branch version of the ontology
->>> ontology = totolo.remote()
->>> print(ontology)
+    >>> ontology = totolo.remote()
+    >>> print(ontology)
 <2945 themes, 4475 stories>
 
 #: write it or read it locally
->>> ontology.write("/home/mo/themes")
->>> ontology = totolo.files("/home/mo/themes")
->>> print(ontology)
+    >>> ontology.write("/home/mo/themes")
+    >>> ontology = totolo.files("/home/mo/themes")
+    >>> print(ontology)
 <2945 themes, 4475 stories>
 ```
 
@@ -42,23 +42,23 @@ Explore the themes:
 
 ```python
 #: go over all the themes and find the ones you want
->>> for theme in ontology.themes():
-...     if "romantic love" in theme.name:
-...         print(theme)
-# b'personal freedom vs. romantic love'[3]
-# b'romantic love'[3]
+    >>> for theme in ontology.themes():
+    ...     if "romantic love" in theme.name:
+    ...         print(theme)
+b'personal freedom vs. romantic love'[3]
+b'romantic love'[3]
 
 #: check the definition of a theme
->>> love = ontology.theme["love"]
->>> love.print()
-(...)
+    >>> love = ontology.theme["love"]
+    >>> love.print()
+    (...)
 ```
 
 Explore the stories:
 
 ```python
->>> for weight, theme in story.iter_themes():
-...     print(f"{weight:<15} {theme.name}")
+    >>> for weight, theme in story.iter_themes():
+    ...     print(f"{weight:<15} {theme.name}")
 ```
 
 ``` 
@@ -70,8 +70,8 @@ Choice Themes   the lust for power
 Convert it to a pandas dataframe:
 
 ```python
->>> df = ontology.dataframe()
->>> df
+    >>> df = ontology.dataframe()
+    >>> df
 ```
 
 ```
@@ -83,6 +83,26 @@ Convert it to a pandas dataframe:
 52454  videogame: Final Fantasy VI (1994)  Final Fantasy VI  1994-04-02             father and son  Minor Themes
 
 [52455 rows x 5 columns]
+```
+
+## Snippets
+
+Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same:
+
+```python
+    df = ontology.theme['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
+    df.to_excel("/mnt/d/repos/themelist-loyalty.xlsx", "loyalty")
+```
+
+Find theme entries in stories according to some criteria. For example, find empty motivations:
+
+```python
+    empty_motivations = [
+        (story, weight, part)
+        for story in ontology.stories()
+        for weight, part in story.iter_theme_entries()
+        if part.motivation.strip()==""
+    ]
 ```
 
 ## Getting Help
