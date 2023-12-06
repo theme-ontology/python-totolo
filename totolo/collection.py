@@ -33,7 +33,7 @@ class TOSet(set):
                 motivation=motivation,
                 descriptions=descriptions,
             )
-        import totolo
+        import totolo  # pylint: disable=cyclic-import
         return totolo.empty().dataframe(
             implied_themes=implied_themes,
             motivation=motivation,
@@ -44,7 +44,7 @@ class TOSet(set):
         for x in self:
             if hasattr(x, "ontology"):
                 return x.ontology()
-
+        return None
 
 
 class TODict(dict):
@@ -61,5 +61,3 @@ class TODict(dict):
                 f"same, not {type(key)}"
             ) from te
         return TOSet(self.__getitem__(x) for x in obj_iter)
-
-
