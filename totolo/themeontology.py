@@ -4,51 +4,7 @@ import random
 from collections import defaultdict
 
 from .impl.core import TOObject, a
-from .theme import TOTheme
-from .story import TOStory
-
-
-class TOSet(set):
-    def ancestors(self):
-        return TOSet(a for o in self for a in o.ancestors())
-
-    def descendants(self):
-        return TOSet(a for o in self for a in o.descendants())
-
-    def dataframe(
-        self,
-        implied_themes=False,
-        motivation=False,
-        descriptions=False,
-    ):
-        subset_stories = [x for x in self if isinstance(x, TOStory)]
-        subset_themes = [x for x in self if isinstance(x, TOTheme)]
-        for obj in self:
-            return obj.ontology().dataframe(
-                subset_stories=subset_stories,
-                subset_themes=subset_themes,
-                implied_themes=implied_themes,
-                motivation=motivation,
-                descriptions=descriptions,
-            )
-        return ThemeOntology().dataframe(
-            implied_themes=implied_themes,
-            motivation=motivation,
-            descriptions=descriptions,
-        )
-
-
-class TODict(dict):
-    def __getitem__(self, key):
-        if isinstance(key, str):
-            return super().__getitem__(key)
-        try:
-            obj_iter = iter(key)
-        except TypeError as te:
-            raise TypeError(
-                f"TODict indices must be string or iterable, not {type(key)}"
-            ) from te
-        return TOSet(super(TODict, self).__getitem__(x) for x in obj_iter)
+from .collection import TODict
 
 
 class ThemeOntology(TOObject):
@@ -87,14 +43,8 @@ class ThemeOntology(TOObject):
     ):
         import pandas as pd
 
-        story_ids = set(
-            x.name for x in subset_stories
-            if isinstance(x, TOStory)
-        ) | set(x for x in subset_stories if isinstance(x, str))
-        theme_ids = set(
-            x.name for x in subset_themes
-            if isinstance(x, TOTheme)
-        ) | set(x for x in subset_themes if isinstance(x, str))
+        story_ids = list(self._subset_as_names(subset_stories))
+        theme_ids = list(self._subset_as_names(subset_themes))
 
         headers = ["story_id", "title", "date", "theme_id", "weight"]
         if motivation:
@@ -118,6 +68,18 @@ class ThemeOntology(TOObject):
             data.extend(records)
 
         return pd.DataFrame(data, columns=headers)
+
+    @staticmethod
+    def _subset_as_names(subset):
+        if hasattr(subset, "names"):
+            yield from subset.names()
+        elif hasattr(subset, "name"):
+            yield subset.name
+        elif isinstance(subset, str):
+            yield subset
+        else:
+            for x in subset:
+                yield from ThemeOntology._subset_as_names(x)
 
     def _dataframe_records_for_story(
         self, story,

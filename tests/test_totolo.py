@@ -193,7 +193,7 @@ class TestFeatures:
 
     def test_theme_ancestors(self):
         ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
-        themes = list(ontology.theme["love"].ancestors())
+        themes = [x.name for x in ontology.theme["love"].ancestors()]
         assert set(themes) == set([
             'love',
             'human emotion',
@@ -201,11 +201,11 @@ class TestFeatures:
             'personal human experience',
             'the human world',
         ])
-        assert list(TOTheme(name="foo").ancestors()) == ["foo"]
+        assert list(TOTheme(name="foo").iter_ancestor_names()) == ["foo"]
 
     def test_theme_descendants(self):
         ontology = totolo.files("tests/data/to-2023.07.09.th.txt")
-        themes = list(ontology.theme["love"].descendants())
+        themes = list(x.name for x in ontology.theme["love"].descendants())
         assert set(themes) == set([
             'love',
             'romantic love',
@@ -233,27 +233,30 @@ class TestFeatures:
             'matrimonial love',
             'filial love',
         ])
-        assert list(TOTheme(name="foo").descendants()) == ["foo"]
+        assert list(TOTheme(name="foo").iter_descendant_names()) == ["foo"]
 
     def test_story_ancestors(self):
         ontology = totolo.files("tests/data/storytree.st.txt")
-        stories = list(ontology.story["Collection: B2"].ancestors())
+        stories = [x.name for x in ontology.story["Collection: B2"].ancestors()]
         assert set(stories) == set(
             ['Collection: B2', 'Collection: A', 'Collection: B1'])
-        assert list(TOStory(name="foo").ancestors()) == ["foo"]
+        assert list(TOStory(name="foo").iter_ancestor_names()) == ["foo"]
 
     def test_story_descendants(self):
         ontology = totolo.files("tests/data/storytree.st.txt")
-        stories = list(ontology.story["Collection: B2"].descendants())
+        stories = [
+            x.name for x in ontology.story["Collection: B2"].descendants()
+        ]
         assert set(stories) == set(['Collection: B2', 'story: C'])
-        assert list(TOStory(name="foo").descendants()) == ["foo"]
+        assert list(TOStory(name="foo").iter_descendant_names()) == ["foo"]
 
     def test_dataframe(self):
         ontology = totolo.files("tests/data/sample-2023.07.23")
         df = ontology.dataframe()
         set_pandas_display_options()
-        themed_stories = len(
-            [name for name in ontology.story if not name.startswith("Collection")])
+        themed_stories = len([
+            name for name in ontology.story if not name.startswith("Collection")
+        ])
         story_themes = sum(len(list(s.iter_theme_entries()))
                            for s in ontology.story.values())
         set_pandas_display_options()
@@ -285,18 +288,6 @@ class TestFeatures:
         assert len(set(df["theme_id"])) == 1
         assert len(set(df["motivation"])) == 3
 
-    def test_toset_dataframe(self):
-        ontology = totolo.files("tests/data/sample-2023.07.23")
-        df = ontology.theme[["electricity"]].dataframe()
-        assert len(df) == 3
-        subset_stories = [
-            s.name for s in ontology.stories() if s.name.startswith("movie:")
-        ]
-        df = ontology.story[subset_stories].dataframe()
-        assert len(df) == 505
-        df = ontology.theme[[]].dataframe()
-        assert len(df) == 0
-
     def test_theme_access_list(self):
         prefix = "tests/data/sample-2023.07.23"
         ontology = totolo.files(prefix)
@@ -317,28 +308,6 @@ class TestFeatures:
         with pytest.raises(TypeError):
             toset = ontology.theme[123]
 
-    def test_toset_descendants(self):
-        prefix = "tests/data/sample-2023.07.23"
-        ontology = totolo.files(prefix)
-        toset = ontology.theme[["romantic love"]]
-        res = ontology.theme[toset.descendants()]
-        assert sorted(t.name for t in res) == [
-            'epic love', 'first crush', 'forbidden love', 'impossible love',
-            'infatuation', 'love at first sight', 'love kindled by danger',
-            'nostalgic love', 'obsessive love', 'old-age love',
-            'romantic jealousy', 'romantic love', 'secret crush', 'tragic love',
-            'unrequited love',
-        ]
-
-    def test_toset_ancestors(self):
-        prefix = "tests/data/sample-2023.07.23"
-        ontology = totolo.files(prefix)
-        toset = ontology.theme[["love"]]
-        res = ontology.theme[toset.ancestors()]
-        assert sorted(t.name for t in res) == [
-            'human emotion', 'individual humans', 'love',
-            'personal human experience', 'the human world',
-        ]
 
 class TestValidation:
     def test_cycle_warning(self):

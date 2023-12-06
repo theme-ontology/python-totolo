@@ -61,10 +61,10 @@ class TOEntry(TOObject):
                 if fieldtype != "unknown" or not skipunknown:
                     yield field
 
-    def ancestors(self):
+    def iter_ancestor_names(self):
         yield from self._dfs("parents", self._lookup())
 
-    def descendants(self):
+    def iter_descendant_names(self):
         yield from self._dfs("children", self._lookup())
 
     def validate(self):
