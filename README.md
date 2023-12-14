@@ -87,6 +87,18 @@ Convert it to a pandas dataframe:
 
 ## Snippets
 
+List official versioned releases of the ontology:
+
+```python
+    list(totolo.remote.versions())
+```
+
+Load the v2023.06 release:
+
+```python
+    ontology = totolo.remote.version('v2023.06')
+```
+
 Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same:
 
 ```python
@@ -101,7 +113,7 @@ Find theme entries in stories according to some criteria. For example, find empt
         (story, weight, part)
         for story in ontology.stories()
         for weight, part in story.iter_theme_entries()
-        if part.motivation.strip()==""
+        if part.motivation.strip() == ""
     ]
 ```
 
