@@ -1,3 +1,4 @@
+import copy
 import pytest
 
 import totolo
@@ -17,6 +18,11 @@ class TOTest1(TOObject):
 
 
 class TestTOObject:
+    def test_equality(self):
+        assert TOTest1() == TOTest1()
+        assert TOTest1() != TOObject()
+        assert TOTest1() != TOTest1(a1="bar")
+
     def test_object_attributes(self):
         a = TOTest1(a2="fox")
         assert a.a1 == "foo"
@@ -56,6 +62,17 @@ class TestTOObject:
 
 
 class TestField:
+    def test_equality(self):
+        f1 = TOField(name="foo", fieldtype="text", source=["source line"]).setup()
+        assert f1 != "bogus"
+        f2 = copy.deepcopy(f1)
+        assert f1 == f2
+        f2.name = "bar"
+        assert f1 != f2
+        f2 = copy.deepcopy(f1)
+        f2.fieldtype = "blob"
+        assert f1 != f2
+
     def make_field(self, fieldtype="text"):
         field = TOField(name="foo", fieldtype=fieldtype, source=["source line"]).setup()
         if fieldtype == "kwlist":

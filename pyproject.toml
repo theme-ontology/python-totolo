@@ -34,4 +34,10 @@ disable = [
     "unsupported-assignment-operation", # pylint gets it wrong
     "unsupported-delete-operation",     # pylint gets it wrong
     "super-with-arguments",             # pylint gets it wrong
+    "abstract-class-instantiated",      # pylint gets it wrong with ExcelWriter
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if __name__ == .__main__.:",
 ]
