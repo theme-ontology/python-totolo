@@ -83,7 +83,7 @@ def read_theme_sheet(filename, sheetpattern="data"):
 
 def get_rows(listpath):
     for row in read_theme_sheet(listpath):
-        yield(row)
+        yield row
 
 
 def get_changes(rows, ontology):

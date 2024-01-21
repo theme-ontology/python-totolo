@@ -24,6 +24,7 @@ disable = [
     "missing-class-docstring",          # don't want it
     "missing-function-docstring",       # don't want it
     "too-few-public-methods",           # don't want it
+    "logging-fstring-interpolation",    # don't want it
     "too-many-arguments",               # borderline acceptable
     "super-init-not-called",            # borderline acceptable
     "import-outside-toplevel",          # borderline acceptable

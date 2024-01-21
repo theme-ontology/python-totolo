@@ -1,7 +1,5 @@
 import os.path
 import argparse
-from collections import defaultdict
-from pprint import pprint
 
 import totolo
 
@@ -26,7 +24,7 @@ def mergefiles(paths, reorder=True, dryrun=False):
 
     if len(isdir) != len(paths):
         return
-    elif not any(isdir):
+    if not any(isdir):
         destination_path = paths[-1]
         all_entries = sum(final_to.entries.values(), [])
         for entry in all_entries:
