@@ -1,3 +1,5 @@
+import copy
+
 import totolo.lib.textformat
 
 from .core import TOObject, a
@@ -10,6 +12,41 @@ class TOField(TOObject):
     source = a(list)
     parts = a(list)
     frozen = a(False)
+
+    def __iadd__(self, other):
+        assert isinstance(other, TOField)
+        assert self.name == other.name
+        assert self.fieldtype == other.fieldtype
+        if self.fieldtype == "kwlist":
+            self_kws = {p.keyword for p in self.parts}
+            for other_part in other.parts:
+                if other_part.keyword in self_kws:
+                    self.update_kw(
+                        other_part.keyword,
+                        motivation=other_part.motivation,
+                        capacity=other_part.capacity,
+                        notes=other_part.notes,
+                    )
+                else:
+                    self.insert_kw(
+                        keyword=other_part.keyword,
+                        motivation=other_part.motivation,
+                        capacity=other_part.capacity,
+                        notes=other_part.notes,
+                    )
+        else:
+            self.parts = copy.deepcopy(other.parts)
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        if self.name != other.name:
+            return False
+        if self.fieldtype != other.fieldtype:
+            return False
+        if self.parts != other.parts:
+            return False
+        return True
 
     def __setattr__(self, name, value):
         if name != "frozen":

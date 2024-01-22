@@ -2,9 +2,12 @@ import copy
 import os.path
 import random
 from collections import defaultdict
+import weakref
 
 from .impl.core import TOObject, a
 from .collection import TODict
+from .story import TOStory
+from .theme import TOTheme
 
 
 class ThemeOntology(TOObject):
@@ -17,7 +20,87 @@ class ThemeOntology(TOObject):
         return sum(len(v) for v in self.entries.values())
 
     def __str__(self):
-        return f"<{len(self.theme)} themes, {len(self.story)} stories>"
+        return f"ThemeOntology<{len(self.theme)} themes, {len(self.story)} stories>"
+
+    def __iadd__(self, other):
+        assert isinstance(other, ThemeOntology)
+        other_prefix = os.path.commonpath(other.basepaths)
+        self_prefix = os.path.commonpath(self.basepaths)
+        for other_path, other_entries in other.entries.items():
+            if os.path.commonprefix([other_prefix, other_path]) != other_prefix:
+                new_path = other_path  # probably not a path, e.g. '<api>'
+            else:
+                new_path = os.path.join(self_prefix, os.path.relpath(other_path, other_prefix))
+            self_entries = self.entries.setdefault(new_path, [])
+            entry_lu = {e.name: e for e in self_entries}
+            for other_entry in other_entries:
+                if other_entry.name  in entry_lu:
+                    entry_lu[other_entry.name] += other_entry
+                else:
+                    new_entry = copy.deepcopy(other_entry)
+                    new_entry.ontology = weakref.ref(self)
+                    self_entries.append(new_entry)
+                    if isinstance(new_entry, TOStory):
+                        self.story[new_entry.name] = new_entry
+                    elif isinstance(new_entry, TOTheme):
+                        self.theme[new_entry.name] = new_entry
+        self.refresh_relations()
+        return self
+
+    def __add__(self, other):
+        result = copy.deepcopy(self)
+        result += other
+        return result
+
+    def __eq__(self, other):
+        if self.theme != other.theme:
+            return False
+        if self.story != other.story:
+            return False
+        return True
+
+    def __contains__(self, obj):
+        if isinstance(obj, str):
+            return obj in self.story or obj in self.theme
+        if isinstance(obj, TOTheme):
+            return self.theme.get(obj.name, None) == obj
+        if isinstance(obj, TOStory):
+            return self.story.get(obj.name, None) == obj
+        return False
+
+    def __getitem__(self, key):
+        if key in self.theme:
+            if key in self.story:
+                raise KeyError(f"Ambiguous Key: '{key}' is both a theme and a story.")
+            return self.theme[key]
+        return self.story[key]
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, (TOStory, TOTheme)):
+            raise ValueError(
+                f"Can only insert TOTheme or TOStory into ontology, not {type(value)}."
+            )
+        if not value.name:
+            value.name = key
+        assert value.name == key
+        try:
+            del self[key]
+        except KeyError:
+            pass
+        if isinstance(value, TOStory):
+            self.story[key] = value
+        elif isinstance(value, TOTheme):
+            self.theme[key] = value
+        self.entries.setdefault(value.source_location, []).append(value)
+        value.ontology = weakref.ref(self)
+
+    def __delitem__(self, key):
+        item = self[key]
+        self.entries[item.source_location].remove(item)
+        if key in self.theme:
+            del self.theme[key]
+        if key in self.story:
+            del self.story[key]
 
     def stories(self):
         for story in self.story.values():
@@ -92,13 +175,13 @@ class ThemeOntology(TOObject):
             themes = [part.keyword]
             if implied_themes and part.keyword in self.theme:
                 theme = self.theme[part.keyword]
-                themes.extend(theme.ancestors())
-            for theme in themes:
+                themes.extend(t.name for t in theme.ancestors())
+            for themename in themes:
                 record = [
                     story.name,
                     story["Title"],
                     story["Date"],
-                    theme,
+                    themename,
                     weight,
                 ]
                 if motivation:
@@ -106,8 +189,8 @@ class ThemeOntology(TOObject):
                 if descriptions:
                     record.append(story.verbose_description())
                     record.append(
-                        self.theme[theme].verbose_description()
-                        if theme in self.theme else ""
+                        self.theme[themename].verbose_description()
+                        if themename in self.theme else ""
                     )
                 data.append(record)
         return data
@@ -223,7 +306,7 @@ class ThemeOntology(TOObject):
     def _writefile(self, path, entries, cleaned):
         cskey = "Component Stories"
         dirname = os.path.dirname(path)
-        if not os.path.exists(dirname):
+        if dirname and not os.path.exists(dirname):
             os.makedirs(dirname)
         with open(path, "w", encoding='utf-8') as fhandle:
             sids = set(e.name for e in entries)

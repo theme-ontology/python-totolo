@@ -74,6 +74,15 @@ class TOObject(metaclass=TOObjectMeta):
         super().__init__()
         self.__dict__.update(kwargs)
 
+    def __eq__(self, other):
+        if {k for k, _ in self.iter_attrs()} != {k for k, _ in other.iter_attrs()}:
+            return False
+        for key, attr in self.iter_attrs():
+            if not attr.private:
+                if getattr(self, key) != getattr(other, key):
+                    return False
+        return True
+
     def get_attr(self, key):
         return self._to_attrs.get(key)
 

@@ -13,8 +13,27 @@ class TOEntry(TOObject):
     source_location = a("<api>)")
     ontology = a(lambda: (lambda: None))
 
+    def __iadd__(self, other):
+        assert isinstance(other, TOEntry)
+        assert self.name == other.name
+        for key, other_field in other.fields.items():
+            self_field = self.setdefault(key)
+            self_field += other_field
+        self.parents |= other.parents
+        self.children |= other.children
+        return self
+
     def __lt__(self, other):
         return str(self) < str(other)
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        if self.name != other.name:
+            return False
+        if self.fields != other.fields:
+            return False
+        return True
 
     def __hash__(self):
         return hash(self.name)

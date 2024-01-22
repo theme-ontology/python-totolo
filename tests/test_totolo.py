@@ -5,6 +5,7 @@ import os.path
 import tempfile
 import urllib.request
 from unittest.mock import patch
+import copy
 
 import pandas as pd
 import pytest
@@ -325,3 +326,78 @@ class TestValidation:
         ])
         warnings = list(ontology.validate_entries())
         assert any("Multiple TOStory with name" in x for x in warnings)
+
+
+class TestOperations:
+    def test_equality(self):
+        o1 = totolo.files("tests/data/sample-2023.07.23")
+        o2 = totolo.files("tests/data/sample-2023.07.23")
+        assert o1 == o2
+        s1 = o1.story["movie: Dr. Jekyll and Mr. Hyde (1920 I)"]
+        s1["Major Themes"].delete_kw("mad scientist stereotype")
+        assert o1 != o2
+        del o1.story["movie: Dr. Jekyll and Mr. Hyde (1920 I)"]
+        assert o1 != o2
+
+        o1 = copy.deepcopy(o2)
+        assert o1 == o2
+        o1["bar theme"] = TOTheme()
+        assert o1 != o2
+
+
+    def test_addition(self):
+        o1 = totolo.files("tests/data/sample-2023.07.23")
+        o2 = totolo.files("tests/data/sample-2023.07.23")
+
+        del o1["movie: Dr. Jekyll and Mr. Hyde (1920 II)"]
+        s1 = o1.story["movie: Dr. Jekyll and Mr. Hyde (1920 I)"]
+        s1["Major Themes"].delete_kw("mad scientist stereotype")
+        o3 = o1 + o2
+        o1 += o2
+        assert o1 == o2
+        assert o3 == o2
+        o2["foo story"] = TOStory()
+        o2["bar theme"] = TOTheme()
+        o1 += o2
+        assert o1 == o2
+
+    def test_get(self):
+        o1 = totolo.files("tests/data/sample-2023.07.23")
+        o1["foo"] = TOTheme()
+        assert o1["foo"].name == "foo"
+        o1.story["foo"] = TOStory()  # invalid usage
+        with pytest.raises(KeyError):
+            o1["foo"]
+
+    def test_del(self):
+        o1 = totolo.files("tests/data/sample-2023.07.23")
+        o1["foo"] = TOTheme()
+        del o1["foo"]
+        assert o1 == totolo.files("tests/data/sample-2023.07.23")
+        o1["foo"] = TOStory()
+        del o1["foo"]
+        assert o1 == totolo.files("tests/data/sample-2023.07.23")
+
+    def test_set(self):
+        o1 = totolo.files("tests/data/sample-2023.07.23")
+        with pytest.raises(ValueError):
+            o1["foo"] = "bar"
+        o1["bar"] = TOTheme()
+        o1["foo"] = TOTheme()
+        o1["foo"] = TOStory()
+        assert "foo" not in o1.theme
+        assert "foo" in o1.story
+        assert "bar" in o1.theme
+
+    def test_contains(self):
+        o1 = totolo.files("tests/data/sample-2023.07.23")
+        o1["foo"] = TOStory()
+        o1["bar"] = TOTheme()
+        assert "foo" in o1
+        assert "bar" in o1
+        assert TOStory(name="foo") in o1
+        assert TOTheme(name="bar") in o1
+        assert TOTheme(name="foo") not in o1
+        assert TOStory(name="bar") not in o1
+        assert 42 not in o1
+        assert ... not in o1

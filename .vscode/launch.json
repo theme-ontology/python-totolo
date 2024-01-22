@@ -43,6 +43,7 @@
             "justMyCode": false,
             "args": [
                 "-c",
+                "-v",
                 "pytest.ini"
             ],
             "internalConsoleOptions": "openOnSessionStart",
