@@ -103,12 +103,10 @@ class ThemeOntology(TOObject):
             del self.story[key]
 
     def stories(self):
-        for story in self.story.values():
-            yield story
+        yield from self.story.values()
 
     def themes(self):
-        for theme in self.theme.values():
-            yield theme
+        yield from self.theme.values()
 
     def astory(self):
         return random.sample(list(self.story.values()), 1)[0]
