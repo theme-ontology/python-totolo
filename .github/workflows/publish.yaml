@@ -140,11 +140,20 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
+    - name: Install deps
+      run: sudo apt-get install -y rename
+
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
+
+    - name: Add dev build sequence to artefact names
+      run:
+        v=.dev$(date '+%Y%m%d%H%M')
+        rename -v 's/^(.+\/totolo-\d+.\d+)(.+)/$1'$v'$2/s' dist/*
+
     - name: Publish distribution 📦 to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
