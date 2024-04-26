@@ -150,7 +150,7 @@ jobs:
         path: dist/
 
     - name: Add dev build sequence to artefact names
-      run:
+      run: |
         v=.dev$(date '+%Y%m%d%H%M')
         rename -v 's/^(.+\/totolo-\d+.\d+)(.+)/$1'$v'$2/s' dist/*
 
