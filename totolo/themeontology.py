@@ -303,23 +303,26 @@ class ThemeOntology(TOObject):
 
     def _writefile(self, path, entries, cleaned):
         cskey = "Component Stories"
+        collection_entry = None
         dirname = os.path.dirname(path)
         if dirname and not os.path.exists(dirname):
             os.makedirs(dirname)
+        for idx, entry in enumerate(entries):
+            if entry.subtype()=="collection":
+                collection_entry = entry if idx == 0 else None
         with open(path, "w", encoding='utf-8') as fhandle:
             sids = set(e.name for e in entries)
             for idx, entry in enumerate(entries):
-                if idx == 0 and entry.name in entry["Collections"]:
+                if entry is collection_entry:
                     field = entry.get(cskey)
                     all_parts = list(field)
-                    parts = [x for x in all_parts if x not in sids]
-                    if parts != all_parts:
-                        entry = copy.deepcopy(entry)
-                        if parts:
-                            field = entry.setdefault(cskey)
-                            field.parts = parts
-                        else:
-                            entry.delete(cskey)
+                    parts_ex_implied = [x for x in all_parts if x not in sids]
+                    entry = copy.deepcopy(entry)
+                    if parts_ex_implied:
+                        field = entry.setdefault(cskey)
+                        field.parts = parts_ex_implied
+                    else:
+                        entry.delete(cskey)
                 lines = entry.text_canonical() if cleaned else entry.text_original()
                 fhandle.write(lines)
                 fhandle.write("\n\n" if cleaned else "\n")

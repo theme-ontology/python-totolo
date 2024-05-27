@@ -12,6 +12,9 @@ class TOTheme(TOEntry):
     References = sa("list")
     Aliases = sa("list")
 
+    def subtype(self):
+        return "theme"
+
     def ancestors(self):
         return self.ontology().theme[self.iter_ancestor_names()]
 

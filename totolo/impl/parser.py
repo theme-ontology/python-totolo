@@ -170,14 +170,13 @@ class TOParser:
         entries = []
         for idx, entrylines in enumerate(TOParser.iter_entries(lines)):
             entry = cls.make_story(entrylines)
-            if idx == 0:
-                mycols = entry.get("Collections").parts
-                if mycols and mycols[0] == entry.sid:
-                    collection_entry = entry
-            if idx > 0 and collection_entry:
+            if entry.subtype()=="collection":
+                collection_entry = entry if idx == 0 else None
+            entries.append(entry)
+        if collection_entry:
+            for entry in entries[1:]:
                 field = collection_entry.setdefault("Component Stories")
                 field.parts.append(entry.sid)
-            entries.append(entry)
         return entries
 
     @classmethod
