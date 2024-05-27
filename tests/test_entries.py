@@ -62,6 +62,8 @@ foo
 :: a very long junkline
 bar
         """)
+        assert "abstract" in entry.subtype()
+        assert entry == entry
         assert len(str(entry)) > 3
         warnings = list(entry.validate())
         assert len(warnings) == 1
@@ -73,6 +75,11 @@ bar
 
 
 class TestTOStory:
+    def test_story_subtype(self):
+        assert "story" in TOStory(name="bar").subtype()
+        assert "collection" not in TOStory(name="bar").subtype()
+        assert "collection" in TOStory(name="Collection: widget").subtype()
+
     def test_story_order(self):
         objects = [
             TOStory(name="bar"),
@@ -145,6 +152,9 @@ class TestTOStory:
 
 
 class TestTOTheme:
+    def test_story_subtype(self):
+        assert "theme" in TOTheme(name="bar").subtype()
+
     def test_theme_order(self):
         objects = [
             TOTheme(name="bar"),

@@ -137,6 +137,9 @@ class TestIO:
 
     def test_write_clean(self):
         prefix1 = "tests/data/sample-2023.07.23"
+        csid = "Collection: Science fiction films of the 1920s"
+        sid1 = "movie: Dr. Jekyll and Mr. Hyde (1920 II)"
+        sid2 = "movie: Alraune (1930)"
         ontology1 = totolo.files(prefix1)
         with tempfile.TemporaryDirectory() as prefix2:
             print(f"Writing to: {prefix2}")
@@ -145,6 +148,9 @@ class TestIO:
             ontology2 = totolo.files(prefix2)
             ontology2.write_clean()
             ontology3 = totolo.files(prefix2)
+            assert sid1 in ontology2.story[csid].source
+            assert sid1 not in ontology3.story[csid].source
+            assert sid2 in ontology3.story[csid].source
             diffs = []
             for path, entries in ontology3.entries.items():
                 for idx, entry3 in enumerate(entries):
@@ -332,23 +338,25 @@ class TestOperations:
     def test_equality(self):
         o1 = totolo.files("tests/data/sample-2023.07.23")
         o2 = totolo.files("tests/data/sample-2023.07.23")
+        assert o1 == o1
         assert o1 == o2
         s1 = o1.story["movie: Dr. Jekyll and Mr. Hyde (1920 I)"]
+        t1 = o1.theme["AI assistant"]
+        assert s1 == s1
+        assert t1 == t1
+        assert s1 != t1
         s1["Major Themes"].delete_kw("mad scientist stereotype")
         assert o1 != o2
         del o1.story["movie: Dr. Jekyll and Mr. Hyde (1920 I)"]
         assert o1 != o2
-
         o1 = copy.deepcopy(o2)
         assert o1 == o2
         o1["bar theme"] = TOTheme()
         assert o1 != o2
 
-
     def test_addition(self):
         o1 = totolo.files("tests/data/sample-2023.07.23")
         o2 = totolo.files("tests/data/sample-2023.07.23")
-
         del o1["movie: Dr. Jekyll and Mr. Hyde (1920 II)"]
         s1 = o1.story["movie: Dr. Jekyll and Mr. Hyde (1920 I)"]
         s1["Major Themes"].delete_kw("mad scientist stereotype")
