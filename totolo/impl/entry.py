@@ -27,6 +27,8 @@ class TOEntry(TOObject):
         return str(self) < str(other)
 
     def __eq__(self, other):
+        if self is other:
+            return True
         if type(self) is not type(other):
             return False
         if self.name != other.name:
@@ -67,6 +69,9 @@ class TOEntry(TOObject):
 
     def __delitem__(self, key):
         del self.fields[key]
+
+    def subtype(self):
+        return "abstract entry"
 
     def iter_fields(self, reorder=False, skipunknown=False):
         if reorder:
