@@ -36,6 +36,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+        overwrite: true
 
 
   build-dev:
@@ -73,6 +74,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist-dev/
+        overwrite: true
 
 
   publish-to-pypi:
