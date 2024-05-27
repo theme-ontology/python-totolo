@@ -36,7 +36,11 @@ def mergefiles(paths, reorder=True, dryrun=False):
 
     for path, entries in final_to.entries.items():
         if reorder:
-            entries.sort(key=lambda x: (not x.name.startswith("Collection:"), x.name))
+            entries.sort(key=lambda x: (
+                1 if x.subtype()=="collection" else 2,
+                x.name.casefold(),
+                x.name
+            ))
         prefix = "Would have written" if dryrun else "Writing"
         log.info(f"{prefix}: {path}: {len(entries)} entries")
 

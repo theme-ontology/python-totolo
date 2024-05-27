@@ -22,6 +22,11 @@ class TOStory(TOEntry):
     Not_Themes = sa("kwlist")
     Other_Keywords = sa("kwlist")
 
+    def subtype(self):
+        if self.name.startswith("Collection: "):
+            return "collection"
+        return "story"
+
     def ancestors(self):
         return self.ontology().story[self.iter_ancestor_names()]
 
