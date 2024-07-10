@@ -11,50 +11,48 @@ This repository contains a Python package, totolo, for working with data from th
 
 ## Installation
 
-Install from PyPi:
-
 ```
 pip install totolo
 ```
 
-Or clone this repository and copy the `totolo` directory wherever you need it. No dependencies are required.
+Or clone this repository and copy the `totolo` directory wherever you need it. No package dependencies are required.
 
 
 ## Basic Usage
 
 ```python
-#: import package
+    #: import package
     >>> import totolo
 
-#: get the latest main branch version of the ontology
+    #: get the latest main branch version of the ontology
     >>> ontology = totolo.remote()
     >>> print(ontology)
 <2945 themes, 4475 stories>
 
-#: write it or read it locally
+    #: write it or read it locally
     >>> ontology.write("/home/mo/themes")
     >>> ontology = totolo.files("/home/mo/themes")
     >>> print(ontology)
 <2945 themes, 4475 stories>
 ```
 
-Explore the themes:
+### Explore the themes
 
 ```python
-#: go over all the themes and find the ones you want
+    #: go over all the themes and find the ones you want
     >>> for theme in ontology.themes():
     ...     if "romantic love" in theme.name:
     ...         print(theme)
 b'personal freedom vs. romantic love'[3]
 b'romantic love'[3]
 
-#: check the definition of a theme
+    #: check the definition of a theme
     >>> love = ontology.theme["love"]
     >>> love.print()
     (...)
 ```
 
-Explore the stories:
+### Explore the stories
 
 ```python
     >>> for weight, theme in story.iter_themes():
@@ -67,7 +65,7 @@ Choice Themes   the lust for power
 (...)
 ```
 
-Convert it to a pandas dataframe:
+### Convert it to a pandas dataframe
 
 ```python
     >>> df = ontology.dataframe()
@@ -87,26 +85,26 @@ Convert it to a pandas dataframe:
 
 ## Snippets
 
-List official versioned releases of the ontology:
+### List official versioned releases of the ontology
 
 ```python
     list(totolo.remote.versions())
 ```
 
-Load the v2023.06 release:
+### Load the v2023.06 release
 
 ```python
     ontology = totolo.remote.version('v2023.06')
 ```
 
-Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same:
+### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
 
 ```python
     df = ontology.theme['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
     df.to_excel("/mnt/d/repos/themelist-loyalty.xlsx", "loyalty")
 ```
 
-Find theme entries in stories according to some criteria. For example, find empty motivations:
+### Find theme entries in stories according to some criteria. For example, find empty motivations
 
 ```python
     empty_motivations = [
