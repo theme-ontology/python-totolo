@@ -3,8 +3,7 @@ from collections import defaultdict
 from pprint import pprint
 
 import totolo
-
-from ..lib import excel, log
+from totolo.lib import excel, log
 
 
 REQUIRED_HEADERS = [
@@ -19,6 +18,14 @@ FIELDNAMES = {
     "major": "Major Themes",
     "choice": "Choice Themes",
 }
+
+
+def get_fieldname(field_alias_or_name):
+    if field_alias_or_name in FIELDNAMES:
+        return FIELDNAMES[field_alias_or_name]
+    elif field_alias_or_name in FIELDNAMES.values():
+        return field_alias_or_name
+    raise ValueError(f"Unknown field name referenced: {field_alias_or_name}")
 
 
 class LabeledRow:
@@ -41,6 +48,7 @@ class LabeledRow:
         else:
             self.rtheme = self.rtheme or self.theme
             self.rweight = self.rweight or self.weight
+            self.rmotivation = self.rmotivation or self.motivation
             if not (self.rtheme and self.rweight):
                 raise ValueError(f"Revised entry without identifying theme/weight: {self}.")
             if not self.rmotivation:
@@ -137,7 +145,7 @@ def merge_deletions(ontology, deletions, replacements):
         (sid, oldweight, oldtheme) = key
         if key in replacements:
             raise ValueError(f"Marked for both DELETION and REPLACEMENT: {key}")
-        kwfield = ontology.story[sid].get(FIELDNAMES[oldweight])
+        kwfield = ontology.story[sid].get(get_fieldname(oldweight))
         if kwfield.frozen:
             log.error("DELETE TARGET WEIGHT %s MISSING: %s", oldweight, key)
             continue
@@ -150,7 +158,7 @@ def merge_deletions(ontology, deletions, replacements):
 def merge_replacements(ontology, replacements):
     for key in replacements:
         (sid, oldweight, oldtheme) = key
-        kwfield = ontology.story[sid].get(FIELDNAMES[oldweight])
+        kwfield = ontology.story[sid].get(get_fieldname(oldweight))
         for nw, nt, nc, ncapacity in replacements[key]:
             assert oldweight == nw, "replacement listed but weights don't match, illogical"
             kwfield.update_kw(
@@ -165,7 +173,7 @@ def merge_newentries(ontology, newentries):
     for sid in newentries:
         for fieldname in newentries[sid]:
             for theme, motivation, ncapacity in newentries[sid][fieldname]:
-                kwfield = ontology.story[sid].get(FIELDNAMES[fieldname])
+                kwfield = ontology.story[sid].get(get_fieldname(fieldname))
                 kwfield.insert_kw(
                     keyword=theme,
                     motivation=motivation,

@@ -88,3 +88,9 @@ class TestMergeList:
                 headers=["sid", "theme", "weight", "revised motivation"],
                 row=["foo", "bar", "baz", ""],
             )
+
+    def test_get_fieldname(self):
+        assert totolo.util.mergelist.get_fieldname("major") == "Major Themes"
+        assert totolo.util.mergelist.get_fieldname("Major Themes") == "Major Themes"
+        with pytest.raises(ValueError):
+            totolo.util.mergelist.get_fieldname("FooBar")
