@@ -23,7 +23,7 @@ FIELDNAMES = {
 def get_fieldname(field_alias_or_name):
     if field_alias_or_name in FIELDNAMES:
         return FIELDNAMES[field_alias_or_name]
-    elif field_alias_or_name in FIELDNAMES.values():
+    if field_alias_or_name in FIELDNAMES.values():
         return field_alias_or_name
     raise ValueError(f"Unknown field name referenced: {field_alias_or_name}")
 
