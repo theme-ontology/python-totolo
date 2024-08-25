@@ -173,7 +173,7 @@ def merge_newentries(ontology, newentries):
     for sid in newentries:
         for fieldname in newentries[sid]:
             for theme, motivation, ncapacity in newentries[sid][fieldname]:
-                kwfield = ontology.story[sid].get(get_fieldname(fieldname))
+                kwfield = ontology.story[sid].setdefault(get_fieldname(fieldname))
                 kwfield.insert_kw(
                     keyword=theme,
                     motivation=motivation,
