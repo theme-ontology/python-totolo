@@ -195,8 +195,10 @@ def mergelist(listpath, notespath, dryrun=False):
 
 def main():
     """
+    This utility is provided as a command line script.
+
     Example:
-        python util.mergelist mydata.xlsx ./notes
+        "to-mergelist mydata.xlsx ./ontology/notes".
     """
     headers = REQUIRED_HEADERS + OPTIONAL_HEADERS
     parser = argparse.ArgumentParser(
@@ -204,7 +206,8 @@ def main():
             'Merge an excel sheet of changes into a theme ontology directory. ' +
             'The first row should contain column headers, including: ' +
             ', '.join(headers) + '.'
-        )
+        ),
+        epilog=main.__doc__
     )
     parser.add_argument("path_changes", help="Path to the Excel sheet with changes.")
     parser.add_argument("path_ontology", help="Path to the ontology.")

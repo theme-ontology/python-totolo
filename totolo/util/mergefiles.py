@@ -50,14 +50,16 @@ def mergefiles(paths, reorder=True, dryrun=False):
 
 def main():
     """
+    This utility is provided as a command line script.
+
     Example:
-        python util.mergefiles <file1> <file2> ... <fileN>
-        python util.mergefiles <dir1> <dir2> ... <dirN>
+        "to-mergefiles file1 file2 fileN".
     """
     parser = argparse.ArgumentParser(
         description=(
             'Merge a number of files, or a number of dirs.'
-        )
+        ),
+        epilog=main.__doc__
     )
     parser.add_argument(
         "paths",

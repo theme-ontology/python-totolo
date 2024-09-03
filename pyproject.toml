@@ -15,6 +15,11 @@ Home = "https://www.themeontology.org/"
 Documentation = "https://github.com/theme-ontology/theming"
 Source = "https://github.com/theme-ontology/python-totolo"
 
+[project.scripts]
+to-help = "totolo.util.help:main"
+to-mergefiles = "totolo.util.mergefiles:main"
+to-mergelist = "totolo.util.mergelist:main"
+
 [tool.pylint.BASIC]
 good-names = "a,sa"
 
