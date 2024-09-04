@@ -13,12 +13,14 @@ To learn more about python usage, follow the github link.
 
 The following commands are provided:
 """.strip())
-    for command in [
+    for name in [
+        "makelist",
         "mergelist",
         "mergefiles",
         "help",
     ]:
-        print(f"  to-{command:<15}" + ("" if shutil.which(command) else "  (not installed)"))
+        command = f'to-{name}'
+        print(f"  {command:<15}" + ("" if shutil.which(command) else "  (not installed)"))
     print("""
 Use "command -h" to find out more about each.
 
