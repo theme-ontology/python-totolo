@@ -6,6 +6,40 @@ import pandas as pd
 import totolo
 
 
+REVIEW_COLS = [
+    "sid",
+    "title",
+    "parents",
+    "theme",
+    "capacity",
+    "weight",
+    "motivation",
+    "DISCUSS",
+    "revised comment",
+    "revised theme",
+    "revised weight",
+    "revised capacity",
+    "tentative action",
+    "discussion thread",
+]
+
+REVIEW_COL_WIDTHS = {
+    "weight": 10,
+    "motivation": 40,
+    "revised comment": 40,
+    "revised weight": 10,
+    "revised capacity": 10,
+}
+
+BASIC_CELL_STYLE = {
+    'text_wrap': True,
+    'valign': 'vcenter',
+    'align': 'left',
+    'border': 1,
+    'border_color': '#cccccc',
+}
+
+
 def conditional_add_from(iterable, names, regex, container):
     for obj in iterable:
         if regex:
@@ -17,29 +51,6 @@ def conditional_add_from(iterable, names, regex, container):
 
 def write_themelist(df, filename, columns=None):
     df = df.copy()
-    REVIEW_COLS = [
-        "sid",
-        "title",
-        "parents",
-        "theme",
-        "capacity",
-        "weight",
-        "motivation",
-        "DISCUSS",
-        "revised comment",
-        "revised theme",
-        "revised weight",
-        "revised capacity",
-        "tentative action",
-        "discussion thread",
-    ]
-    REVIEW_COL_WIDTHS = {
-        "weight": 10,
-        "motivation": 40,
-        "revised comment": 40,
-        "revised weight": 10,
-        "revised capacity": 10,
-    }
     columns = columns or REVIEW_COLS
 
     for col in columns:
@@ -55,27 +66,18 @@ def write_themelist(df, filename, columns=None):
             freeze_panes=(1, 1),
             sheet_name="data",
         )
-        workbook = writer.book
-        worksheet = writer.sheets['data']
-        worksheet.set_default_row(70)
-        basic = {
-            'text_wrap': True,
-            'valign': 'vcenter',
-            'align': 'left',
-            'border': 1,
-            'border_color': '#cccccc',
-        }
-        revise = dict(basic, **{
+        writer.sheets['data'].set_default_row(70)
+        revise = dict(BASIC_CELL_STYLE, **{
             'bg_color': '#ffffcc'
         })
-        format_basic = workbook.add_format(basic)
-        format_revise = workbook.add_format(revise)
+        format_basic = writer.book.add_format(BASIC_CELL_STYLE)
+        format_revise = writer.book.add_format(revise)
 
         for idx, colname in enumerate(columns):
             width = REVIEW_COL_WIDTHS.get(colname, 15)
             colc = chr(ord("A") + idx)
             fmt = format_revise if 'revised' in colname else format_basic
-            worksheet.set_column('{}:{}'.format(colc, colc), width, fmt)
+            writer.sheets['data'].set_column(f'{colc}:{colc}', width, fmt)
 
 
 def makelist(
