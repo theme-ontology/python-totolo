@@ -6,3 +6,4 @@ pytest-cov
 snakeviz
 xlwt
 openpyxl
+xlsxwriter

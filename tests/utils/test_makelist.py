@@ -1,5 +1,4 @@
 import os.path
-import shutil
 import sys
 import tempfile
 from unittest.mock import patch
