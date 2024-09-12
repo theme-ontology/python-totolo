@@ -51,7 +51,9 @@ class TestMergeList:
 
     def test_badsheet_raises(self, tmpfiles):
         with pytest.raises(ValueError):
-            list(totolo.util.mergelist.read_theme_sheet(tmpfiles[2], sheetpattern="error1"))
+            list(totolo.util.mergelist.read_theme_sheet(
+                tmpfiles[2], sheetpattern="error1"
+            ))
 
     def test_badrow_raises(self):
         rows = [totolo.util.mergelist.LabeledRow(
@@ -61,6 +63,15 @@ class TestMergeList:
         rows[0].rtheme = ''
         with pytest.raises(ValueError):
             totolo.util.mergelist.get_changes(rows, totolo.empty())
+
+    def test_badrow_action_raises(self):
+        with pytest.raises(ValueError):
+            totolo.util.mergelist.LabeledRow(
+                headers=[
+                    "sid", "theme", "weight", "revised motivation", "action"
+                ],
+                row=["foo", "bar", "baz", "dudd", "boo"],
+            )
 
     def test_labeledrow_str(self):
         lr = totolo.util.mergelist.LabeledRow(

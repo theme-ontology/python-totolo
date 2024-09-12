@@ -1,6 +1,5 @@
 import argparse
 from collections import defaultdict
-from pprint import pprint
 
 import totolo
 from totolo.lib import excel, log
@@ -37,7 +36,6 @@ class LabeledRow:
             attr = self._hhattr(hh)
             if not hasattr(self, attr):
                 setattr(self, attr, "")
-
         if not self.sid:
             raise ValueError(f"Entry without Story ID: {self}.")
         if self.action.lower() == "delete":
@@ -45,6 +43,8 @@ class LabeledRow:
             self.rtheme = ''
             self.rweight = ''
             self.rcapacity = ''
+        elif self.action.lower().strip():
+            raise ValueError(f"Unrecognized action: {self}.")
         else:
             self.rtheme = self.rtheme or self.theme
             self.rweight = self.rweight or self.weight
@@ -67,18 +67,19 @@ class LabeledRow:
         return '{' + ', '.join(parts) + '}'
 
     def _hhattr(self, hh):
-        hhparts = hh.split()
+        hhparts = hh.lower().split()
         return ''.join(x[0] for x in hhparts[:-1]) + hhparts[-1]
 
 
 def read_theme_sheet(filename, sheetpattern="data"):
     headers = excel.get_headers(filename, sheetpattern=sheetpattern)[0][1]
+    lheaders = [x.lower() for x in headers]
     for hh in REQUIRED_HEADERS:
-        if hh not in headers:
+        if hh not in lheaders:
             raise ValueError(f"Missing header: {hh}")
     activeheaders = list(REQUIRED_HEADERS)
-    for hh in OPTIONAL_HEADERS:
-        if hh in headers:
+    for hh in headers:
+        if hh.lower() in OPTIONAL_HEADERS:
             activeheaders.append(hh)
     log.info("Reading named columns from %s: %s", filename, activeheaders)
     data, sheetcount, rowcount = excel.read_xls(
@@ -104,6 +105,8 @@ def get_changes(rows, ontology):
             newentries[row.sid][row.rweight].append([
                 row.rtheme, row.rmotivation, row.rcapacity
             ])
+        elif not any([row.rtheme, row.rweight, row.rmotivation, row.rcapacity]):
+            deletions[(row.sid, row.weight, row.theme)] = True
         elif row.rtheme and row.rweight:
             if row.weight == row.rweight:
                 replacements[(
@@ -115,8 +118,6 @@ def get_changes(rows, ontology):
                 newentries[row.sid][row.rweight].append([
                     row.rtheme, row.rmotivation, row.rcapacity
                 ])
-        elif not any([row.rtheme, row.rweight, row.rmotivation, row.rcapacity]):
-            deletions[(row.sid, row.weight, row.theme)] = True
         else:
             raise ValueError(f"Unexpected row configuration: {row}")
         if row.rtheme and row.rtheme not in ontology.theme:
@@ -125,16 +126,27 @@ def get_changes(rows, ontology):
     return newentries, replacements, deletions, new_themes
 
 
+def tostring(val, limit=30):
+    if isinstance(val, (tuple, list)):
+        return str([str(x)[:limit] for x in val])
+    return str(val)
+
+
+def debugprint(changedict):
+    for key in sorted(changedict):
+        print(f"  AT: {tostring(key)}")
+        print(f"    ==> {tostring(changedict[key])}")
+
+
 def report_changes(newentries, replacements, deletions, new_themes):
-    print()
-    print("NEW")
+    print("\n:: NEW")
     for sid in newentries:
         print(sid)
-        pprint(dict(newentries[sid]))
-    print("REPLACEMENT")
-    pprint(dict(replacements))
-    print("DELETION")
-    pprint(dict(deletions))
+        debugprint(dict(newentries[sid]))
+    print("\n:: REPLACEMENT")
+    debugprint(dict(replacements))
+    print("\n:: DELETION")
+    debugprint(dict(deletions))
 
     for newtheme, previous in new_themes.items():
         log.warning("Undefined New Theme: %s CHANGED FROM %s", newtheme, sorted(set(previous)))
