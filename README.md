@@ -55,6 +55,7 @@ b'romantic love'[3]
 ### Explore the stories
 
 ```python
+    >>> story = ontology.story["movie: Ran (1985)"]
     >>> for weight, theme in story.iter_themes():
     ...     print(f"{weight:<15} {theme.name}")
 ```
