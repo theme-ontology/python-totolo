@@ -117,6 +117,11 @@ class TestField:
         assert count == 1
         assert len(field.parts) == 0
 
+    def test_find_kw(self):
+        field = self.make_field("kwlist")
+        assert field.find_kw("foo").capacity == "baz"
+        assert field.find_kw("missing_foo") is None
+
     def test_freeze(self):
         field = self.make_field("kwlist").freeze()
         with pytest.raises(AttributeError):

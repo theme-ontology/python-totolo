@@ -137,6 +137,12 @@ class TOField(TOObject):
             )
         )
 
+    def find_kw(self, match_keyword):
+        for part in self.parts:
+            if part.keyword == match_keyword:
+                return part
+        return None
+
     def setup(self):
         if not self.parts and not self.frozen:
             # this used to be done immediately but is now defered for efficiency
