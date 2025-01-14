@@ -45,6 +45,7 @@ disable = [
     "unsupported-delete-operation",     # pylint gets it wrong
     "super-with-arguments",             # pylint gets it wrong
     "abstract-class-instantiated",      # pylint gets it wrong with ExcelWriter
+    "too-many-positional-arguments",    # too late to change (or todo)
 ]
 
 [tool.coverage.report]
