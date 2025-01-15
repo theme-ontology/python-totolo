@@ -62,7 +62,7 @@ class TOEntry(TOObject):
             field = TOField(
                 name=key,
                 fieldtype="blob",
-                source=[data],
+                source=[':: ' + self.name] + [data],
                 parts=[data],
             )
         self.fields[key] = field.setup()

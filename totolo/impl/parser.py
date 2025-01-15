@@ -130,6 +130,7 @@ class TOParser:
     @classmethod
     def init_field(cls, field):
         fieldtype = field.fieldtype
+        field.parts.clear()
         if fieldtype == "kwlist":
             data_iter = islice(field.source, 1, 1000)
             for kwtuple in TOParser.iter_kwitems(data_iter):

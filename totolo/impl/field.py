@@ -12,6 +12,7 @@ class TOField(TOObject):
     source = a(list)
     parts = a(list)
     frozen = a(False)
+    __initialized = False
 
     def __iadd__(self, other):
         assert isinstance(other, TOField)
@@ -144,8 +145,9 @@ class TOField(TOObject):
         return None
 
     def setup(self):
-        if not self.parts and not self.frozen:
+        if not self.__initialized and not self.parts and not self.frozen:
             # this used to be done immediately but is now defered for efficiency
             from .parser import TOParser  # pylint: disable=cyclic-import
             TOParser.init_field(self)
+            self.__initialized = True
         return self

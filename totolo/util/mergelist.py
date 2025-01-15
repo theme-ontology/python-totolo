@@ -102,9 +102,12 @@ def get_changes(rows, ontology):
 
     for row in rows:
         if not row.theme or not row.weight:
-            newentries[row.sid][row.rweight].append([
-                row.rtheme, row.rmotivation, row.rcapacity
-            ])
+            if row.rtheme:
+                newentries[row.sid][row.rweight].append([
+                    row.rtheme, row.rmotivation, row.rcapacity
+                ])
+            else:
+                raise ValueError(f"Unexpected row configuration (no theme/weight): {row}")
         elif not any([row.rtheme, row.rweight, row.rmotivation, row.rcapacity]):
             deletions[(row.sid, row.weight, row.theme)] = True
         elif row.rtheme and row.rweight:
