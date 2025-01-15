@@ -180,17 +180,33 @@ def merge_replacements(ontology, replacements):
                 capacity=ncapacity,
             )
 
-
 def merge_newentries(ontology, newentries):
     for sid in newentries:
         for fieldname in newentries[sid]:
-            for theme, motivation, ncapacity in newentries[sid][fieldname]:
-                kwfield = ontology.story[sid].setdefault(get_fieldname(fieldname))
-                kwfield.insert_kw(
-                    keyword=theme,
-                    motivation=motivation,
-                    capacity=ncapacity,
-                )
+            for theme, motivation, capacity in newentries[sid][fieldname]:
+                realfieldname = get_fieldname(fieldname)
+                kwfield = ontology.story[sid].setdefault(realfieldname)
+                kwold = kwfield.find_kw(theme)
+                if kwold:
+                    log.warning(
+                        "THEME %s UNEXPECTEDLY PRESENT IN %s::%s",
+                        theme, sid, realfieldname
+                    )
+                    if kwold.motivation != motivation or kwold.capacity != capacity:
+                        log.warning("  OLD: %s <%s> [%s]", theme, kwold.capacity, kwold.motivation)
+                        log.warning("  NEW: %s <%s> [%s]", theme, capacity, motivation)
+                        kwfield.update_kw(
+                            theme,
+                            keyword=theme,
+                            motivation=motivation,
+                            capacity=capacity,
+                        )
+                else:
+                    kwfield.insert_kw(
+                        keyword=theme,
+                        motivation=motivation,
+                        capacity=capacity,
+                    )
 
 
 def mergelist(listpath, notespath, dryrun=False):
@@ -198,10 +214,13 @@ def mergelist(listpath, notespath, dryrun=False):
     newentries, replacements, deletions, new_themes = get_changes(get_rows(listpath), ontology)
     if dryrun:
         report_changes(newentries, replacements, deletions, new_themes)
+        print("::RUNNING BUT NOT SAVING::")
+    merge_deletions(ontology, deletions, replacements)
+    merge_replacements(ontology, replacements)
+    merge_newentries(ontology, newentries)
+    if dryrun:
+        print("::CHANGES NOT SAVED::")
     else:
-        merge_deletions(ontology, deletions, replacements)
-        merge_replacements(ontology, replacements)
-        merge_newentries(ontology, newentries)
         ontology.write_clean()
 
 
