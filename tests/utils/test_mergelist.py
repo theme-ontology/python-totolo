@@ -63,6 +63,9 @@ class TestMergeList:
         rows[0].rtheme = ''
         with pytest.raises(ValueError):
             totolo.util.mergelist.get_changes(rows, totolo.empty())
+        rows[0].theme = ''
+        with pytest.raises(ValueError):
+            totolo.util.mergelist.get_changes(rows, totolo.empty())
 
     def test_badrow_action_raises(self):
         with pytest.raises(ValueError):
