@@ -1,8 +1,13 @@
 import argparse
 import json
-from signal import signal, SIGPIPE, SIG_DFL
 
 import totolo
+
+try:
+    from signal import signal, SIGPIPE, SIG_DFL
+    signal(SIGPIPE, SIG_DFL)
+except ImportError:
+    pass
 
 
 def include_theme(th_dict):
@@ -60,7 +65,6 @@ def main():
     Example:
         "to-makejson "
     """
-    signal(SIGPIPE, SIG_DFL)
     parser = argparse.ArgumentParser(
         description=(
             'Output a version of the ontology as json.'
