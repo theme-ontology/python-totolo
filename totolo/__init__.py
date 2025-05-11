@@ -2,7 +2,7 @@
 The Python interface to themeontology.org.
 """
 
-__version__ = "1.8.0"
+__version__ = "1.9.1"
 
 from totolo.api import TORemote, empty, files
 

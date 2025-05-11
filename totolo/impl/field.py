@@ -101,6 +101,13 @@ class TOField(TOObject):
     def text_original(self):
         return "\n".join(self.source)
 
+    def to_obj(self):
+        if self.fieldtype == "list":
+            return [str(x) for x in self]
+        if self.fieldtype == "kwlist":
+            return [kw.to_obj() for kw in self]
+        return "\n".join(totolo.lib.textformat.remove_wordwrap(part).strip() for part in self)
+
     def delete_kw(self, keyword):
         assert self.mutable().setup().fieldtype == "kwlist"
         todelete = set()

@@ -31,14 +31,32 @@ def set_pandas_display_options() -> None:
     display.width = 200
 
 
+def precache_remote_resources():
+    data = io.StringIO(json.dumps([
+        {"tag_name": "v2023.06", "name": "new version number", "published_at": "2023"},
+        {"tag_name": "v0.3.3", "name": "new version number", "published_at": "1066"},
+    ]))
+    with patch.object(urllib.request, 'urlopen', return_value=data):
+        list(totolo.remote.versions())
+        totolo.remote._get("releases")
+    data = io.StringIO(json.dumps([
+        {"name": "v2023.06", "commit": {"sha": "#foo"}},
+        {"name": "v0.3.3", "commit": {"sha": "#bar"}},
+    ]))
+    with patch.object(urllib.request, 'urlopen', return_value=data):
+        totolo.remote._get("tags")
+    data = io.StringIO(json.dumps({
+        "sha": "#foo",
+        "commit": {"author": {"date": "1066"}},
+    }))
+    with patch.object(urllib.request, 'urlopen', return_value=data):
+        totolo.remote._get("commits/master")
+
+
 class TestIO:
     def test_versions(self):
-        data = io.StringIO(json.dumps([
-            {"tag_name": "v2023.06", "name": "new version number"},
-            {"tag_name": "v0.3.3", "name": "new version number"},
-        ]))
-        with patch.object(urllib.request, 'urlopen', return_value=data):
-            versions = [v for v, _ in totolo.remote.versions()]
+        precache_remote_resources()
+        versions = [v for v, _ in totolo.remote.versions()]
         assert "v2023.06" in versions
         assert "v0.3.3" in versions
         with pytest.raises(ValueError):
@@ -50,6 +68,7 @@ class TestIO:
         assert len(ontology) == 0
 
     def test_remote_version_old(self):
+        precache_remote_resources()
         with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
             with patch.object(urllib.request, 'urlopen', return_value=fh):
                 ontology = totolo.remote.version("v0.3.3")
@@ -57,6 +76,7 @@ class TestIO:
         assert len(ontology) > 3
 
     def test_remote_version_new(self):
+        precache_remote_resources()
         with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
             with patch.object(urllib.request, 'urlopen', return_value=fh):
                 ontology = totolo.remote.version("v2023.06")
@@ -98,6 +118,8 @@ class TestIO:
         assert list(s["Collections"]) == []
 
     def test_fetch_and_write(self):
+        precache_remote_resources()
+        totolo.remote._get("releases")
         print("Downloading master...")
         with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
             with patch.object(urllib.request, 'urlopen', return_value=fh):
@@ -315,6 +337,21 @@ class TestFeatures:
         with pytest.raises(TypeError):
             toset = ontology.theme[123]
 
+    def test_to_dict(self):
+        prefix = "tests/data/sample-2023.07.23"
+        ontology = totolo.files(prefix)
+        ontology.source["foo"] = "bar"
+        dd = ontology.to_dict()
+        assert "lto" in dd
+        assert len(dd["themes"]) == 2940
+        assert len(dd["stories"]) == 45
+        assert len(dd["collections"]) == 57
+        for key in ["source", "date", "description"]:
+            assert key in dd["stories"][8]
+            assert key in dd["collections"][2]
+        assert dd["stories"][8]["major themes"][1]["name"] == "speculative spaceship"
+        for key in ["source", "parents", "description"]:
+            assert key in dd["themes"][8]
 
 class TestValidation:
     def test_cycle_warning(self):
