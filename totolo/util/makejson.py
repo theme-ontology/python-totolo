@@ -3,12 +3,6 @@ import json
 
 import totolo
 
-try:  # pragma: no cover
-    from signal import signal, SIGPIPE, SIG_DFL
-    signal(SIGPIPE, SIG_DFL)
-except ImportError:  # pragma: no cover
-    pass
-
 
 def include_theme(th_dict):
     return bool(th_dict)
@@ -93,10 +87,13 @@ def main():
     else:
         ontology = totolo.remote()
 
-    if not any([args.t, args.s, args.c]):
-        make_json(ontology)
-    else:
-        make_json(ontology, with_themes=args.t, with_stories=args.s, with_collections=args.c)
+    try:
+        if not any([args.t, args.s, args.c]):
+            make_json(ontology)
+        else:
+            make_json(ontology, with_themes=args.t, with_stories=args.s, with_collections=args.c)
+    except BrokenPipeError:  # pragma: no cover
+        pass
 
 
 if __name__ == "__main__":
