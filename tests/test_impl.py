@@ -4,6 +4,7 @@ import pytest
 import totolo
 from totolo.impl.core import TOObject, a, sa
 from totolo.impl.field import TOField
+from totolo.impl.keyword import TOKeyword
 from totolo.impl.parser import TOParser
 from totolo.story import TOStory
 
@@ -15,6 +16,25 @@ class TOTest1(TOObject):
     bb = sa("txt", default="baz: b", required=True)
     cc = sa("txt", default="baz: c")
     aa = sa("txt", default="baz: a")
+
+
+class TestTOKeyword:
+    def test_basics(self):
+        kwargs = dict(
+            keyword = "apa",
+            capacity = "bepa",
+            motivation = "cepa",
+            notes = "depa",
+        )
+        kw = TOKeyword(**kwargs)
+        as_str = str(kw)
+        as_dict = kw.to_obj()
+        for key, value in kwargs.items():
+            assert value in as_str
+            if key != "keyword":
+                assert as_dict[key] == value
+            else:
+                assert as_dict["name"] == value
 
 
 class TestTOObject:

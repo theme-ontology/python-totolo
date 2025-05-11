@@ -1,6 +1,6 @@
 import json
-import re
 import urllib.request
+import functools
 
 from .impl.parser import TOParser
 from .themeontology import ThemeOntology
@@ -19,22 +19,50 @@ def empty():
 
 class TORemote:
     def __call__(self, url: str = "") -> ThemeOntology:
+        version = "none"
+        sha = "none"
+        timestamp = "none"
         if not url:
             url = DEFAULT_URL + "archive/refs/heads/master.tar.gz"
-        return TOParser.add_url(empty(), url)
+            version = "latest/master"
+            sha = self._get("commits/master")["sha"]
+            timestamp = self._get("commits/master")["commit"]["author"]["date"]
+        ontology = TOParser.add_url(empty(), url)
+        ontology.source.update({
+            "origin": url,
+            "version": version,
+            "timestamp": timestamp,
+            "git-commit-id": sha,
+        })
+        return ontology
 
     def version(self, version: str = ""):
-        if re.match(r"v\d+\.\d+\.\d+$", version):
-            url = DEFAULT_URL + f"archive/refs/tags/{version}.tar.gz"
-        elif re.match(r"v20\d{2}\.\d{2}$", version):
-            url = DEFAULT_URL + f"archive/refs/tags/{version}.tar.gz"
+        sha = "none"
+        for release in self._get("releases"):
+            if version == release["tag_name"]:
+                url = DEFAULT_URL + f"archive/refs/tags/{version}.tar.gz"
+                timestamp = release["published_at"]
+                break
         else:
-            raise ValueError(f"Unknown version format {version}.")
-        return self(url)
+            raise ValueError(f"Unknown version {version}. Check list(totolo.remote.versions()).")
+        for tag in self._get("tags"):
+            if tag["name"] == version:
+                sha = tag["commit"]["sha"]
+                break
+        ontology = self(url)
+        ontology.source.update({
+            "version": version,
+            "timestamp": timestamp,
+            "git-commit-id": sha,
+        })
+        return ontology
 
     def versions(self):
-        url = API_URL + "releases"
-        with urllib.request.urlopen(url) as response:
-            contents = response.read()
-        for item in json.loads(contents):
+        for item in self._get("releases"):
             yield item["tag_name"], item["name"]
+
+    @functools.lru_cache
+    def _get(self, endpoint):
+        url = API_URL + endpoint
+        with urllib.request.urlopen(url) as response:
+            return json.loads(response.read())

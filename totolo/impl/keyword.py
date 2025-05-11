@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from .core import TOObject, a
 
 
@@ -19,3 +21,13 @@ class TOKeyword(TOObject):
         motivation = f" [{self.motivation}]" if self.motivation else ""
         notes = f" {{{self.notes}}}" if self.notes else ""
         return f"{self.keyword}{capacity}{motivation}{notes}"
+
+    def to_obj(self):
+        ret = [
+            ("name", self.keyword),
+            ("motivation", self.motivation),
+            ("capacity", self.capacity),
+        ]
+        if self.notes:
+            ret.append(("notes", self.notes))
+        return OrderedDict(ret)

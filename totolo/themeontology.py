@@ -1,7 +1,7 @@
 import copy
 import os.path
 import random
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import weakref
 
 from .impl.core import TOObject, a
@@ -15,6 +15,7 @@ class ThemeOntology(TOObject):
     story = a(TODict)
     entries = a(dict)
     basepaths = a(set)
+    source = a(OrderedDict)
 
     def __len__(self):
         return sum(len(v) for v in self.entries.values())
@@ -326,3 +327,29 @@ class ThemeOntology(TOObject):
                 lines = entry.text_canonical() if cleaned else entry.text_original()
                 fhandle.write(lines)
                 fhandle.write("\n\n" if cleaned else "\n")
+
+    def to_dict(self):
+        lto = OrderedDict()
+        ordered_keys = ["origin", "version", "timestamp", "git-commit-id"]
+        for key in ordered_keys:
+            lto[key] = self.source.get(key, "")
+        for key, value in sorted(self.source.items()):
+            if key not in ordered_keys:
+                lto[key] = value
+        return OrderedDict(
+            lto = lto,
+            themes = [
+                th.to_dict()
+                for _name, th in sorted(self.theme.items())
+            ],
+            stories = [
+                st.to_dict()
+                for _name, st in sorted(self.story.items())
+                if not st.subtype() == "collection"
+            ],
+            collections = [
+                st.to_dict()
+                for _name, st in sorted(self.story.items())
+                if st.subtype() == "collection"
+            ],
+        )

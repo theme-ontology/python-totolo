@@ -139,6 +139,14 @@ class TOEntry(TOObject):
             lines.append(field.text_original())
         return "\n".join(lines)
 
+    def to_dict(self):
+        d = OrderedDict()
+        d["name"] = self.name
+        d["source"] = self.source_location
+        for field_name in sorted(x[0] for x in self.iter_stored()):
+            d[field_name.lower()] = self.get(field_name).to_obj()
+        return d
+
     def get(self, fieldname):
         """Get field, returning a frozen default field if it doesn't exist."""
         field = self.fields.get(fieldname, None)
