@@ -6,7 +6,7 @@ import totolo
 try:  # pragma: no cover
     from signal import signal, SIGPIPE, SIG_DFL
     signal(SIGPIPE, SIG_DFL)
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
 
 
