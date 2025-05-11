@@ -3,7 +3,7 @@ import json
 
 import totolo
 
-try:
+try:  # pragma: no cover
     from signal import signal, SIGPIPE, SIG_DFL
     signal(SIGPIPE, SIG_DFL)
 except ImportError:
