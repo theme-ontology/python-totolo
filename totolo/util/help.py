@@ -17,6 +17,7 @@ The following commands are provided:
         "makelist",
         "mergelist",
         "mergefiles",
+        "makejson",
         "help",
     ]:
         command = f'to-{name}'

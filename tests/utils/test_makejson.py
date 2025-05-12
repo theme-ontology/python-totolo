@@ -43,17 +43,33 @@ class TestMakeJson:
             totolo.util.makejson.main()
         validate1(capsys)
 
+    def test_from_path_narg(self, capsys):
+        p1 = "tests/data/sample-2023.07.23/notes"
+        testargs = ["makejson", p1]
+        with patch.object(sys, 'argv', testargs):
+            totolo.util.makejson.main()
+        validate1(capsys)
+
     def test_bad_usage(self, capsys):
         testargs = ["makejson", "--path", "foo", "--version", "foo"]
         with patch.object(sys, 'argv', testargs):
             totolo.util.makejson.main()
         out, err = capsys.readouterr()
-        assert "--path and --version" in out
-        assert not err
+        assert all(x in err for x in ["--path", "--version", "positional"])
+        assert not out
 
     def test_remote_version(self, capsys):
         precache_remote_resources()
         testargs = ["makejson", "--version", "v2023.06"]
+        with patch.object(sys, 'argv', testargs):
+            with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
+                with patch.object(urllib.request, 'urlopen', return_value=fh):
+                    totolo.util.makejson.main()
+        validate1(capsys)
+
+    def test_remote_version_narg(self, capsys):
+        precache_remote_resources()
+        testargs = ["makejson", "v2023.06"]
         with patch.object(sys, 'argv', testargs):
             with open("tests/data/sample-2023.07.23.tar.gz", "rb+") as fh:
                 with patch.object(urllib.request, 'urlopen', return_value=fh):
@@ -69,7 +85,7 @@ class TestMakeJson:
                     totolo.util.makejson.main()
         validate1(capsys)
 
-    def test_parameters(self, capsys):
+    def test_component_parameters(self, capsys):
         p1 = "tests/data/sample-2023.07.23/notes"
         component_keys = ["themes", "stories", "collections"]
         for key in component_keys:
@@ -82,3 +98,31 @@ class TestMakeJson:
             for key2 in component_keys:
                 if key2 != key:
                     assert key2 not in dd
+
+    def test_verbosity_official(self, capsys):
+        p1 = "tests/data/sample-2023.07.23/notes"
+        testargs = ["makejson", p1, "--verbosity", "official"]
+        with patch.object(sys, 'argv', testargs):
+            totolo.util.makejson.main()
+        out, _err = capsys.readouterr()
+        dd = json.loads(out)
+        assert "source" not in dd["stories"][0]
+        assert "ratings" not in dd["stories"][0]
+
+        testargs = ["makejson", "--verbosity", "all"]
+        with patch.object(sys, 'argv', testargs):
+            totolo.util.makejson.main()
+        out, _err = capsys.readouterr()
+        dd = json.loads(out)
+        assert "source" in dd["stories"][0]
+        assert "ratings" in dd["stories"][0]
+
+    def test_verbosity_all(self, capsys):
+        p1 = "tests/data/sample-2023.07.23/notes"
+        testargs = ["makejson", p1, "--verbosity", "all"]
+        with patch.object(sys, 'argv', testargs):
+            totolo.util.makejson.main()
+        out, _err = capsys.readouterr()
+        dd = json.loads(out)
+        assert "source" in dd["stories"][0]
+        assert "ratings" in dd["stories"][0]
