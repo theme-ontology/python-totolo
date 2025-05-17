@@ -1,0 +1,67 @@
+Collection: A
+=============
+
+:: Title
+A
+
+:: Date
+2025
+
+:: Description
+Collection A.
+
+:: Component Stories
+
+
+Collection: B
+=============
+
+:: Title
+B
+
+:: Date
+2025
+
+:: Description
+Collection B.
+
+:: Component Stories
+
+
+story: A
+========
+
+:: Title
+A
+
+:: Date
+2025
+
+:: Description
+Story A.
+
+:: Collections
+Collection: B
+
+:: Minor Themes
+foo [bar]
+
+
+story: B
+========
+
+:: Title
+B
+
+:: Date
+2025
+
+:: Description
+Story B.
+
+:: Collections
+Collection: A
+Collection: B
+
+:: Minor Themes
+foo [bar]

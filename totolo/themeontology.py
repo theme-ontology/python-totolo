@@ -302,6 +302,25 @@ class ThemeOntology(TOObject):
                     self.story[cstory_name].parents.add(story.name)
         return self
 
+    def organize_collections(self):
+        """
+        Pull out any collection specified on a story and instead put the story
+        as a component on that collection. This effectively removes the
+        :: Collections field.
+        """
+        field_list = []
+        for story in self.stories():
+            for pstory_name in story["Collections"]:
+                if  pstory_name != story.name and pstory_name in self.story:
+                    comp_field = self.story[pstory_name].setdefault("Component Stories")
+                    comp_field.parts.append(story.name)
+                    field_list.append(comp_field)
+            if not story["Collections"].frozen:
+                story["Collections"].parts.clear()
+        for fl in field_list:
+            fl.parts = sorted(set(fl.parts))
+        return self
+
     def _writefile(self, path, entries, cleaned):
         cskey = "Component Stories"
         collection_entry = None
