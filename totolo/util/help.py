@@ -13,13 +13,13 @@ To learn more about python usage, follow the github link.
 
 The following commands are provided:
 """.strip())
-    for name in [
+    for name in sorted([
         "makelist",
         "mergelist",
         "mergefiles",
         "makejson",
         "help",
-    ]:
+    ]):
         command = f'to-{name}'
         print(f"  {command:<15}" + ("" if shutil.which(command) else "  (not installed)"))
     print("""

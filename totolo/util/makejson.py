@@ -120,16 +120,16 @@ def main():
         epilog=main.__doc__
     )
     parser.add_argument("source", nargs="*", help=
-                        "Paths to include or version to download. "
-                        "If a single argument matching tag pattern vYYYY.MM is given, "
-                        "it will be interpreted as a version. "
-                        "Otherwise the arguments will be treated as one or more local paths. "
+        "Paths to include or version to download. "
+        "If a single argument matching tag pattern vYYYY.MM is given, "
+        "it will be interpreted as a version. "
+        "Otherwise the arguments will be treated as one or more local paths. "
     )
     parser.add_argument("-p", "--path", help="Path to the ontology.")
     parser.add_argument("--verbosity", default="official", help=
-                        "Which fields to include. "
-                        "'official': (default) include fields for official release. "
-                        "'all': include all fields. "
+        "Which fields to include. "
+        "'official': (default) include fields for official release. "
+        "'all': include all fields. "
     )
     parser.add_argument(
         "-v", "--version", help="Named version to use. If not specified the latest version of the "
@@ -138,6 +138,11 @@ def main():
     parser.add_argument("-t", action='store_true', help="Include themes.")
     parser.add_argument("-s", action='store_true', help="Include stories.")
     parser.add_argument("-c", action='store_true', help="Include collections.")
+    parser.add_argument('--reorg', action=argparse.BooleanOptionalAction, default=True, help=
+        "If set (default) reorganize the ontology in some ways. "
+        "In particular, remove collection entries on stories and add corresponding "
+        "component entries on the collections instead. "
+    )
     args = parser.parse_args()
 
     if sum(1 for x in [args.path, args.version, args.source] if x) > 1:
@@ -154,6 +159,9 @@ def main():
         ontology = totolo.remote.version(args.version)
     else:
         ontology = totolo.remote()
+
+    if args.reorg:
+        ontology.organize_collections()
 
     try:
         if not any([args.t, args.s, args.c]):

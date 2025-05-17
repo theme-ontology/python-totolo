@@ -126,3 +126,27 @@ class TestMakeJson:
         dd = json.loads(out)
         assert "source" in dd["stories"][0]
         assert "ratings" in dd["stories"][0]
+
+    def test_reorg_default(self, capsys):
+        p1 = "tests/data/collection-reorg.st.txt"
+        testargs = ["makejson", p1]
+        with patch.object(sys, 'argv', testargs):
+            totolo.util.makejson.main()
+        out, _err = capsys.readouterr()
+        dd = json.loads(out)
+        for story_dict in dd["stories"]:
+            assert "collections" not in story_dict
+        assert dd["collections"][0]["component stories"] == ["story: B"]
+        assert dd["collections"][1]["component stories"] == ["story: A", "story: B"]
+
+    def test_no_reorg(self, capsys):
+        p1 = "tests/data/collection-reorg.st.txt"
+        testargs = ["makejson", p1, "--no-reorg"]
+        with patch.object(sys, 'argv', testargs):
+            totolo.util.makejson.main()
+        out, _err = capsys.readouterr()
+        dd = json.loads(out)
+        for story_dict in dd["stories"]:
+            assert "collections" in story_dict
+        for collection_dict in dd["collections"]:
+            assert "collections" not in collection_dict
