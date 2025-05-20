@@ -100,7 +100,7 @@ def make_json(ontology,
         dd["stories"] = stories
     if with_collections:
         dd["collections"] = collections
-    print(json.dumps(dd, indent=4, ensure_ascii=False))
+    return dd
 
 
 def main():
@@ -163,17 +163,19 @@ def main():
     if args.reorg:
         ontology.organize_collections()
 
+    if not any([args.t, args.s, args.c]):
+        dd = make_json(ontology, verbosity=args.verbosity)
+    else:
+        dd = make_json(
+            ontology,
+            with_themes=args.t,
+            with_stories=args.s,
+            with_collections=args.c,
+            verbosity=args.verbosity,
+        )
+
     try:
-        if not any([args.t, args.s, args.c]):
-            make_json(ontology, verbosity=args.verbosity)
-        else:
-            make_json(
-                ontology,
-                with_themes=args.t,
-                with_stories=args.s,
-                with_collections=args.c,
-                verbosity=args.verbosity,
-            )
+        print(json.dumps(dd, indent=4, ensure_ascii=False))
     except BrokenPipeError:  # pragma: no cover
         pass
 
