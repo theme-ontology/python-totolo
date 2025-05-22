@@ -26,7 +26,7 @@ class TORemote:
             url = DEFAULT_URL + "archive/refs/heads/master.tar.gz"
             version = "latest/master"
             sha = self._get("commits/master")["sha"]
-            timestamp = self._get("commits/master")["commit"]["author"]["date"]
+            timestamp = self._get("commits/master")["commit"]["committer"]["date"]
         ontology = TOParser.add_url(empty(), url)
         ontology.source.update({
             "origin": url,
@@ -49,6 +49,8 @@ class TORemote:
             if tag["name"] == version:
                 sha = tag["commit"]["sha"]
                 break
+        if sha:
+            timestamp = self._get("commits/" + sha)["commit"]["committer"]["date"]
         ontology = self(url)
         ontology.source.update({
             "version": version,

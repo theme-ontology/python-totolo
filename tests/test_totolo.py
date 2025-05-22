@@ -40,17 +40,27 @@ def precache_remote_resources():
         list(totolo.remote.versions())
         totolo.remote._get("releases")
     data = io.StringIO(json.dumps([
-        {"name": "v2023.06", "commit": {"sha": "#foo"}},
-        {"name": "v0.3.3", "commit": {"sha": "#bar"}},
+        {"name": "v2023.06", "commit": {"sha": "foo"}},
+        {"name": "v0.3.3", "commit": {"sha": "bar"}},
     ]))
     with patch.object(urllib.request, 'urlopen', return_value=data):
         totolo.remote._get("tags")
     data = io.StringIO(json.dumps({
         "sha": "#foo",
-        "commit": {"author": {"date": "1066"}},
+        "commit": {"committer": {"date": "1066"}},
     }))
     with patch.object(urllib.request, 'urlopen', return_value=data):
         totolo.remote._get("commits/master")
+    data = io.StringIO(json.dumps({
+        "commit": {"committer": {"date": "2023"}},
+    }))
+    with patch.object(urllib.request, 'urlopen', return_value=data):
+        totolo.remote._get("commits/foo")
+    data = io.StringIO(json.dumps({
+        "commit": {"committer": {"date": "2023"}},
+    }))
+    with patch.object(urllib.request, 'urlopen', return_value=data):
+        totolo.remote._get("commits/bar")
 
 
 class TestIO:

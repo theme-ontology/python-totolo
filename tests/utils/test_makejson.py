@@ -9,6 +9,7 @@ import totolo.util.makejson
 
 from tests.test_totolo import precache_remote_resources
 
+
 def validate1(capsys):
     out, err = capsys.readouterr()
     dd = json.loads(out)
