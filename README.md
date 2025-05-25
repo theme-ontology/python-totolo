@@ -48,6 +48,9 @@ of the object and all its contents.
 For the field or keyword objects doing `obj.str()` or `print(obj)` yields
 a text representation of that object.
 
+Although `totolo` can be used to manually edit the structure of the ontology, its primary
+use is to read the ontology and feed it forwards to analytical components.
+
 ## Basic Usage
 
 ```python
