@@ -8,7 +8,6 @@
 
 This repository contains a Python package, totolo, for working with data from the Theme Ontology [theming repository](https://github.com/theme-ontology/theming/).
 
-
 ## Installation
 
 ```
@@ -17,6 +16,37 @@ pip install totolo
 
 Or clone this repository and copy the `totolo` directory wherever you need it. No package dependencies are required.
 
+## Structure
+
+```mermaid
+erDiagram
+    ontology ||--o{ theme : contains
+    ontology ||--o{ story : contains
+    theme ||--|{ field : contains
+    story ||--|{ field : contains
+    story ||--|{ "(weight, keyword)" : contains
+```
+
+Access 
+[themes](https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py)
+or 
+[stories](https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py) 
+as items on the 
+[ontology](https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py) 
+using their unique name: `theme_or_story = ontology[name]`.
+Access basic information on the theme or story by accessing the named 
+[fields](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py):
+`theme.get("Description")` or `story.get("References")`.
+Access minor/major/choice theme entries on a story by iterating over 
+[keywords](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py):
+`for weight, keyword in story.iter_theme_entries(): ...`.
+
+Python's builtin methods `help()` and `dir()` yields useful information on any of these objects.
+The linked source code for them is intended to be readable.
+For any theme or story objects, doing `obj.text_canonical()` yields a canonical text representation
+of the object and all its contents.
+For the field or keyword objects doing `obj.str()` or `print(obj)` yields
+a text representation of that object.
 
 ## Basic Usage
 
