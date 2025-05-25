@@ -1,5 +1,5 @@
 import totolo
-from totolo.collection import TOSet
+from totolo.impl.to_dict import TOSet
 
 
 class TestTOSet:
@@ -48,4 +48,3 @@ class TestTOSet:
             'human emotion', 'individual humans', 'love',
             'personal human experience', 'the human world',
         ]
-

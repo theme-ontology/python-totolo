@@ -1,16 +1,10 @@
 from collections import OrderedDict
 
-from .core import TOObject, a
+from .to_object import TOObject
 
 
-class TOKeyword(TOObject):
-    keyword = a("")
-    capacity = a("")
-    motivation = a("")
-    notes = a("")
-
-    def __init__(self, keyword=keyword, capacity=capacity,
-                 motivation=motivation, notes=notes):
+class TOKeywordBase(TOObject):
+    def __init__(self, keyword="", capacity="", motivation="", notes=""):
         self.keyword = keyword
         self.capacity = capacity
         self.motivation = motivation

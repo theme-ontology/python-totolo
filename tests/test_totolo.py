@@ -13,7 +13,7 @@ import pytest
 import totolo
 from totolo.story import TOStory
 from totolo.theme import TOTheme
-from totolo.themeontology import ThemeOntology
+from totolo.ontology import ThemeOntology
 
 
 def filediff(path1, path2):
@@ -114,7 +114,7 @@ class TestIO:
         s = ontology.story[name]
         s.print()
         assert s.name == name
-        assert s.sid == name
+        assert s.name == name
         assert s["Title"].str() == "The Taming of the Shrew"
         assert s["Date"].str() == "1592"
         assert s.date == "1592"
@@ -366,18 +366,18 @@ class TestFeatures:
 class TestValidation:
     def test_cycle_warning(self):
         ontology = totolo.files("tests/data/cycles1.th.txt")
-        assert len([msg for msg in ontology.validate_cycles() if "Cycle:" in msg]) == 1
+        assert len([msg for msg in ontology._impl.validate_cycles() if "Cycle:" in msg]) == 1
         ontology = totolo.files("tests/data/cycles2.th.txt")
-        assert len([msg for msg in ontology.validate_cycles() if "Cycle:" in msg]) == 1
+        assert len([msg for msg in ontology._impl.validate_cycles() if "Cycle:" in msg]) == 1
         ontology = totolo.files("tests/data/cycles3.th.txt")
-        assert len([msg for msg in ontology.validate_cycles() if "Cycle:" in msg]) == 1
+        assert len([msg for msg in ontology._impl.validate_cycles() if "Cycle:" in msg]) == 1
 
     def test_multiple_entries(self):
         ontology = totolo.files([
             "tests/data/to-sample-2023.07.09.st.txt",
             "tests/data/to-sample-2023.07.09-copy.st.txt",
         ])
-        warnings = list(ontology.validate_entries())
+        warnings = list(ontology._impl.validate_entries())
         assert any("Multiple TOStory with name" in x for x in warnings)
 
 

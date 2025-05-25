@@ -1,21 +1,25 @@
 import copy
+import os
 import os.path
-import random
-from collections import defaultdict, OrderedDict
 import weakref
+from collections import OrderedDict, defaultdict
 
-from .impl.core import TOObject, a
-from .collection import TODict
-from .story import TOStory
-from .theme import TOTheme
+from ..story import TOStory
+from ..theme import TOTheme
+from .to_object import TOObject, a
+from .to_dict import TODict
 
 
-class ThemeOntology(TOObject):
-    theme = a(TODict)
+class TOBase(TOObject):
     story = a(TODict)
+    theme = a(TODict)
     entries = a(dict)
     basepaths = a(set)
     source = a(OrderedDict)
+
+    def __init__(self):
+        super().__init__()
+        self._impl = TOImpl(self)
 
     def __len__(self):
         return sum(len(v) for v in self.entries.values())
@@ -24,7 +28,7 @@ class ThemeOntology(TOObject):
         return f"ThemeOntology<{len(self.theme)} themes, {len(self.story)} stories>"
 
     def __iadd__(self, other):
-        assert isinstance(other, ThemeOntology)
+        assert isinstance(other, TOBase)
         other_prefix = os.path.commonpath(other.basepaths)
         self_prefix = os.path.commonpath(self.basepaths)
         for other_path, other_entries in other.entries.items():
@@ -103,174 +107,6 @@ class ThemeOntology(TOObject):
         if key in self.story:
             del self.story[key]
 
-    def stories(self):
-        yield from self.story.values()
-
-    def themes(self):
-        yield from self.theme.values()
-
-    def astory(self):
-        return random.sample(list(self.story.values()), 1)[0]
-
-    def atheme(self):
-        return random.sample(list(self.theme.values()), 1)[0]
-
-    def dataframe(
-        self,
-        subset_stories=(),
-        subset_themes=(),
-        implied_themes=False,
-        motivation=False,
-        descriptions=False,
-    ):
-        import pandas as pd
-
-        story_ids = list(self._subset_as_names(subset_stories))
-        theme_ids = list(self._subset_as_names(subset_themes))
-
-        headers = ["story_id", "title", "date", "theme_id", "weight"]
-        if motivation:
-            headers.append("motivation")
-        if descriptions:
-            headers.append("story_description")
-            headers.append("theme_definition")
-
-        data = []
-        for story in self.stories():
-            if story_ids and story.name not in story_ids:
-                continue
-            records = self._dataframe_records_for_story(
-                story,
-                implied_themes=implied_themes,
-                motivation=motivation,
-                descriptions=descriptions,
-            )
-            if theme_ids:
-                records = [r for r in records if r[3] in theme_ids]
-            data.extend(records)
-
-        return pd.DataFrame(data, columns=headers)
-
-    @staticmethod
-    def _subset_as_names(subset):
-        if hasattr(subset, "names"):
-            yield from subset.names()
-        elif hasattr(subset, "name"):
-            yield subset.name
-        elif isinstance(subset, str):
-            yield subset
-        else:
-            for x in subset:
-                yield from ThemeOntology._subset_as_names(x)
-
-    def _dataframe_records_for_story(
-        self, story,
-        implied_themes=False,
-        motivation=False,
-        descriptions=False,
-    ):
-        data = []
-        for weight, part in story.iter_theme_entries():
-            themes = [part.keyword]
-            if implied_themes and part.keyword in self.theme:
-                theme = self.theme[part.keyword]
-                themes.extend(t.name for t in theme.ancestors())
-            for themename in themes:
-                record = [
-                    story.name,
-                    story["Title"],
-                    story["Date"],
-                    themename,
-                    weight,
-                ]
-                if motivation:
-                    record.append(part.motivation)
-                if descriptions:
-                    record.append(story.verbose_description())
-                    record.append(
-                        self.theme[themename].verbose_description()
-                        if themename in self.theme else ""
-                    )
-                data.append(record)
-        return data
-
-    def validate(self):
-        yield from self.validate_entries()
-        yield from self.validate_storythemes()
-        yield from self.validate_cycles()
-
-    def validate_entries(self):
-        """Validate basic format of theme and story entries."""
-        lookup = defaultdict(dict)
-        for path, entries in self.entries.items():
-            for entry in entries:
-                for warning in entry.validate():
-                    yield f"{path}: {warning}"
-                if entry.name in lookup[type(entry)]:
-                    tname = type(entry).__name__
-                    yield f"{path}: Multiple {tname} with name '{entry.name}'"
-                lookup[type(entry)][entry.name] = path
-
-    def validate_storythemes(self):
-        """Detect undefined themes used in stories."""
-        for story in self.stories():
-            for weight in ["choice", "major", "minor", "not"]:
-                field = f"{weight.capitalize()} Themes"
-                for kwfield in story.get(field):
-                    if kwfield.keyword not in self.theme:
-                        yield (f"{story.name}: Undefined '{weight} theme' with "
-                               f"name '{kwfield.keyword}'")
-
-    def validate_cycles(self):
-        """Detect cycles (stops after first cycle encountered)."""
-        parents = {}
-        for theme in self.themes():
-            parents[theme.name] = list(theme.get("Parents"))
-
-        def dfs(current, tpath=None):
-            tpath = tpath or []
-            if current in tpath:
-                cycle = tpath[tpath.index(current):]
-                return f"Cycle: {cycle}"
-            tpath.append(current)
-            for parent in parents[current]:
-                msg = dfs(parent, tpath)
-                if msg:
-                    return msg
-            tpath.pop()
-            return None
-
-        for theme in self.themes():
-            msg = dfs(theme.name)
-            if msg:
-                yield msg
-                break
-
-    def write_clean(self):
-        """
-        Write the ontology back to its source file while cleaning up syntax and
-        omitting unknown field names.
-        """
-        self.write(cleaned=True)
-
-    def write(self, prefix=None, cleaned=False, verbose=False):
-        old_prefix = "" if prefix is None else os.path.commonpath(self.basepaths)
-        for path, entries in self.entries.items():
-            if prefix is not None:
-                rel_path = os.path.relpath(path, old_prefix)
-                path = os.path.join(prefix, rel_path)
-            self._writefile(path, entries, cleaned)
-            if verbose:
-                print(f"wrote: {path}")
-
-    def print_warnings(self):
-        """
-        Run validate and print warnings to stdout.
-        """
-        for msg in self.validate():
-            print(msg)
-        return self
-
     def refresh_relations(self):
         """
         The ontology keeps track of parent/child relations in order to facilitate
@@ -305,8 +141,7 @@ class ThemeOntology(TOObject):
     def organize_collections(self):
         """
         Pull out any collection specified on a story and instead put the story
-        as a component on that collection. This effectively removes the
-        :: Collections field.
+        as a component on that collection.
         """
         field_list = []
         for story in self.stories():
@@ -321,7 +156,40 @@ class ThemeOntology(TOObject):
             fl.parts = sorted(set(fl.parts))
         return self
 
-    def _writefile(self, path, entries, cleaned):
+    def validate(self):
+        yield from self._impl.validate_entries()
+        yield from self._impl.validate_storythemes()
+        yield from self._impl.validate_cycles()
+
+    def write(self, prefix=None, cleaned=False, verbose=False):
+        old_prefix = "" if prefix is None else os.path.commonpath(self.basepaths)
+        for path, entries in self.entries.items():
+            if prefix is not None:
+                rel_path = os.path.relpath(path, old_prefix)
+                path = os.path.join(prefix, rel_path)
+            self._impl.writefile(path, entries, cleaned)
+            if verbose:
+                print(f"wrote: {path}")
+
+
+class TOImpl:
+    def __init__(self, ontology):
+        self.o = ontology
+
+    @staticmethod
+    def subset_as_names(subset):
+        if hasattr(subset, "names"):
+            yield from subset.names()
+        elif hasattr(subset, "name"):
+            yield subset.name
+        elif isinstance(subset, str):
+            yield subset
+        else:
+            for x in subset:
+                yield from TOImpl.subset_as_names(x)
+
+    @staticmethod
+    def writefile(path, entries, cleaned):
         cskey = "Component Stories"
         collection_entry = None
         dirname = os.path.dirname(path)
@@ -347,28 +215,137 @@ class ThemeOntology(TOObject):
                 fhandle.write(lines)
                 fhandle.write("\n\n" if cleaned else "\n")
 
-    def to_dict(self):
+    def dataframe_records(
+        self,
+        subset_stories,
+        subset_themes,
+        implied_themes,
+        motivation,
+        descriptions,
+    ):
+        story_ids = list(self.subset_as_names(subset_stories))
+        theme_ids = list(self.subset_as_names(subset_themes))
+        headers = ["story_id", "title", "date", "theme_id", "weight"]
+        if motivation:
+            headers.append("motivation")
+        if descriptions:
+            headers.append("story_description")
+            headers.append("theme_definition")
+        data = []
+        for story in self.o.stories():
+            if story_ids and story.name not in story_ids:
+                continue
+            records = self.dataframe_records_for_story(
+                story,
+                implied_themes=implied_themes,
+                motivation=motivation,
+                descriptions=descriptions,
+            )
+            if theme_ids:
+                records = [r for r in records if r[3] in theme_ids]
+            data.extend(records)
+        return headers, data
+
+    def dataframe_records_for_story(
+        self, story,
+        implied_themes=False,
+        motivation=False,
+        descriptions=False,
+    ):
+        data = []
+        for weight, part in story.iter_theme_entries():
+            themes = [part.keyword]
+            if implied_themes and part.keyword in self.o.theme:
+                theme = self.o.theme[part.keyword]
+                themes.extend(t.name for t in theme.ancestors())
+            for themename in themes:
+                record = [
+                    story.name,
+                    story["Title"],
+                    story["Date"],
+                    themename,
+                    weight,
+                ]
+                if motivation:
+                    record.append(part.motivation)
+                if descriptions:
+                    record.append(story.verbose_description())
+                    record.append(
+                        self.o.theme[themename].verbose_description()
+                        if themename in self.o.theme else ""
+                    )
+                data.append(record)
+        return data
+
+    def validate_entries(self):
+        """Validate basic format of theme and story entries."""
+        lookup = defaultdict(dict)
+        for path, entries in self.o.entries.items():
+            for entry in entries:
+                for warning in entry.validate():
+                    yield f"{path}: {warning}"
+                if entry.name in lookup[type(entry)]:
+                    tname = type(entry).__name__
+                    yield f"{path}: Multiple {tname} with name '{entry.name}'"
+                lookup[type(entry)][entry.name] = path
+
+    def validate_storythemes(self):
+        """Detect undefined themes used in stories."""
+        for story in self.o.stories():
+            for weight in ["choice", "major", "minor", "not"]:
+                field = f"{weight.capitalize()} Themes"
+                for kwfield in story.get(field):
+                    if kwfield.keyword not in self.o.theme:
+                        yield (f"{story.name}: Undefined '{weight} theme' with "
+                               f"name '{kwfield.keyword}'")
+
+    def validate_cycles(self):
+        """Detect cycles (stops after first cycle encountered)."""
+        parents = {}
+        for theme in self.o.themes():
+            parents[theme.name] = list(theme.get("Parents"))
+
+        def dfs(current, tpath=None):
+            tpath = tpath or []
+            if current in tpath:
+                cycle = tpath[tpath.index(current):]
+                return f"Cycle: {cycle}"
+            tpath.append(current)
+            for parent in parents[current]:
+                msg = dfs(parent, tpath)
+                if msg:
+                    return msg
+            tpath.pop()
+            return None
+
+        for theme in self.o.themes():
+            msg = dfs(theme.name)
+            if msg:
+                yield msg
+                break
+
+    def to_dict(self, ont):
         lto = OrderedDict()
         ordered_keys = ["origin", "version", "timestamp", "git-commit-id"]
         for key in ordered_keys:
-            lto[key] = self.source.get(key, "")
-        for key, value in sorted(self.source.items()):
+            lto[key] = ont.source.get(key, "")
+        for key, value in sorted(ont.source.items()):
             if key not in ordered_keys:
                 lto[key] = value
         return OrderedDict(
             lto = lto,
             themes = [
                 th.to_dict()
-                for _name, th in sorted(self.theme.items())
+                for _name, th in sorted(ont.theme.items())
             ],
             stories = [
                 st.to_dict()
-                for _name, st in sorted(self.story.items())
+                for _name, st in sorted(ont.story.items())
                 if not st.subtype() == "collection"
             ],
             collections = [
                 st.to_dict()
-                for _name, st in sorted(self.story.items())
+                for _name, st in sorted(ont.story.items())
                 if st.subtype() == "collection"
             ],
         )

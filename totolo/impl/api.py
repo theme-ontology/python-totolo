@@ -2,8 +2,8 @@ import json
 import urllib.request
 import functools
 
-from .impl.parser import TOParser
-from .themeontology import ThemeOntology
+from .to_parser import TOParser
+from ..ontology import ThemeOntology
 
 DEFAULT_URL = "https://github.com/theme-ontology/theming/"
 API_URL = "https://api.github.com/repos/theme-ontology/theming/"

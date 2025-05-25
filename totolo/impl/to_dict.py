@@ -1,6 +1,6 @@
-from .impl.entry import TOEntry
-from .theme import TOTheme
-from .story import TOStory
+from .to_entry import TOEntry
+from ..theme import TOTheme
+from ..story import TOStory
 
 
 class TOSet(set):

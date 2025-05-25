@@ -5,12 +5,11 @@ from itertools import islice
 from typing import Generator, Iterable, List, Tuple
 
 import totolo.lib.files
-import totolo.lib.textformat
 
 from ..story import TOStory
 from ..theme import TOTheme
-from .field import TOField
-from .keyword import TOKeyword
+from ..field import TOField
+from ..keyword import TOKeyword
 
 G = r"[^\<\>\{\}\[\]]"
 KW_PATTERN = re.compile("([\\[\\]\\{\\}\\<\\>\\n])")
@@ -177,7 +176,7 @@ class TOParser:
         if collection_entry:
             for entry in entries[1:]:
                 field = collection_entry.setdefault("Component Stories")
-                field.parts.append(entry.sid)
+                field.parts.append(entry.name)
         return entries
 
     @classmethod
