@@ -2,10 +2,10 @@ import copy
 import pytest
 
 import totolo
-from totolo.impl.core import TOObject, a, sa
-from totolo.impl.field import TOField
-from totolo.impl.keyword import TOKeyword
-from totolo.impl.parser import TOParser
+from totolo.impl.to_object import TOObject, a, sa
+from totolo.field import TOField
+from totolo.keyword import TOKeyword
+from totolo.impl.to_parser import TOParser
 from totolo.story import TOStory
 
 
@@ -38,6 +38,10 @@ class TestTOKeyword:
 
 
 class TestTOObject:
+    def test_dir(self):
+        for attr in dir(TOObject()):
+            assert not attr.startswith('_')
+
     def test_equality(self):
         assert TOTest1() == TOTest1()
         assert TOTest1() != TOObject()

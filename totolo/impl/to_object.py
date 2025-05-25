@@ -83,6 +83,11 @@ class TOObject(metaclass=TOObjectMeta):
                     return False
         return True
 
+    def __dir__(self):
+        default = super().__dir__()
+        banned = set(dir(TOObject)) - {'str'}
+        return [x for x in default if not (x.startswith('_') or x in banned)]
+
     def get_attr(self, key):
         return self._to_attrs.get(key)
 
@@ -106,6 +111,9 @@ class TOObject(metaclass=TOObjectMeta):
             return self.get_attr(key).required
         except (KeyError, AttributeError) as _e:
             return False
+
+    def str(self):
+        return str(self)
 
     def __str__(self):
         return "[TOObject]"

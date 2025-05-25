@@ -1,6 +1,6 @@
 import pytest
 
-from totolo.impl.entry import TOEntry
+from totolo.impl.to_entry import TOEntry
 from totolo.story import TOStory
 from totolo.theme import TOTheme
 
@@ -127,7 +127,7 @@ class TestTOStory:
 
     def test_story_properties(self):
         story = TOStory(name="foo")
-        assert story.sid == "foo"
+        assert story.name == "foo"
 
         story["Date"] = "gobbledygook"
         assert story.year == 0

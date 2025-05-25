@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
-from .core import TOObject, a
-from .field import TOField
+from .to_object import TOObject, a
+from ..field import TOField
 
 
 class TOEntry(TOObject):
@@ -116,7 +116,7 @@ class TOEntry(TOObject):
                 yield f"{self.name}: unknown field '{field.name}'"
 
     def validate_keywords(self):
-        from .parser import TOParser  # pylint: disable=cyclic-import
+        from .to_parser import TOParser  # pylint: disable=cyclic-import
         for field in self.fields.values():
             if field.fieldtype == "kwlist":
                 data_iter = filter(None, (x.strip() for x in field.source[1:]))

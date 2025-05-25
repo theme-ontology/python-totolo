@@ -1,7 +1,7 @@
 import html
 
-from .impl.core import sa
-from .impl.entry import TOEntry
+from .impl.to_object import sa
+from .impl.to_entry import TOEntry
 
 
 class TOTheme(TOEntry):
@@ -12,16 +12,24 @@ class TOTheme(TOEntry):
     References = sa("list")
     Aliases = sa("list")
 
-    def subtype(self):
-        return "theme"
-
-    def ancestors(self):
+    def ancestors(self) -> 'Iterable[TOTheme]':
+        """
+        Return a TOCollection set with all themes that contain this story beneeth it in
+        the parent-child hierarchy.
+        """
         return self.ontology().theme[self.iter_ancestor_names()]
 
-    def descendants(self):
+    def descendants(self) -> 'Iterable[TOTheme]':
+        """
+        Return a TOCollection set with all themes containing this story above  it in the
+        parent-child hierarchy.
+        """
         return self.ontology().theme[self.iter_descendant_names()]
 
-    def verbose_description(self):
+    def verbose_description(self) -> str:
+        """
+        A lengthy text description of the story.
+        """
         description = str(self.get("Description"))
         examples = str(self.get("Examples")).strip()
         aliases = str(self.get("Aliases")).strip()
@@ -37,16 +45,15 @@ class TOTheme(TOEntry):
             description += self.references_(references)
         return description
 
-    def html_short_description(self):
-        description = str(self.get("Description"))[:256]
-        return html.escape(description)
-
-    def html_description(self):
+    def html_description(self) -> str:
+        """
+        A lengthy html description of the theme.
+        """
         description = html.escape(str(self.get("Description")))
         examples = html.escape(str(self.get("Examples")).strip())
         aliases = html.escape(str(self.get("Aliases")).strip())
         notes = html.escape(str(self.get("Notes")).strip())
-        references = html.escape(str(self.get("References")).strip())
+        theme_references = html.escape(str(self.get("References")).strip())
         description = '<P class="obj-description"><BR>\n' + description
         description += "</P>\n"
         if notes:
@@ -59,9 +66,22 @@ class TOTheme(TOEntry):
             aliases = ', '.join(aliases.split("\n"))
             description += '<P class="obj-description"><b>Aliases:</b><BR>\n' + aliases
             description += "</P>\n"
-        if references:
-            description += self.html_references_(references)
+        if theme_references:
+            description += self.html_references_(theme_references)
         return description
+
+    def html_short_description(self) -> str:
+        """
+        A brief html description of the theme.
+        """
+        description = str(self.get("Description"))[:256]
+        return html.escape(description)
+
+    def subtype(self) -> str:
+        """
+        Themes have no subtypes.
+        """
+        return "theme"
 
     def _lookup(self):
         try:
