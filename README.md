@@ -34,7 +34,9 @@ as items on the
 using their unique name: `theme_or_story = ontology[name]`.
 Access basic information on the theme or story by accessing the named 
 [fields](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py):
-`theme.get("Description")` or `story.get("References")`.
+`theme.get("Description")` or `story.get("References")`. 
+Named fields are defined with the `sa` method in the story and theme source code linked above
+at the top of the respective class.
 Access minor/major/choice theme entries on a story by iterating over 
 [keywords](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py):
 `for weight, keyword in story.iter_theme_entries(): ...`.
