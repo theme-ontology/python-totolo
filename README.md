@@ -41,8 +41,8 @@ Access minor/major/choice theme entries on a story by iterating over
 
 Python's builtin methods `help()` and `dir()` yields useful information on any of these objects.
 The linked source code for them is intended to be readable.
-For any theme or story objects, doing `obj.text_canonical()` yields a canonical text representation
-of the object and all its contents.
+For any theme or story objects, doing `obj.text_canonical()` or `obj.print()` yields a canonical 
+text representation of the object and all its contents.
 For the field or keyword objects doing `obj.str()` or `print(obj)` yields
 a text representation of that object.
 
@@ -78,7 +78,7 @@ b'personal freedom vs. romantic love'[3]
 b'romantic love'[3]
 
     #: check the definition of a theme
-    >>> love = ontology.theme["love"]
+    >>> love = ontology["love"]
     >>> love.print()
     (...)
 ```
@@ -86,7 +86,7 @@ b'romantic love'[3]
 ### Explore the stories
 
 ```python
-    >>> story = ontology.story["movie: Ran (1985)"]
+    >>> story = ontology["movie: Ran (1985)"]
     >>> for weight, theme in story.iter_themes():
     ...     print(f"{weight:<15} {theme.name}")
 ```
@@ -132,7 +132,7 @@ Choice Themes   the lust for power
 ### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
 
 ```python
-    df = ontology.theme['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
+    df = ontology['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
     df.to_excel("/mnt/d/repos/themelist-loyalty.xlsx", "loyalty")
 ```
 
