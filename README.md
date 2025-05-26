@@ -14,8 +14,6 @@ pip install totolo
 
 Or clone this repository and copy the `totolo` directory wherever you need it. No package dependencies are required.
 
-## Structure
-
 ```mermaid
 erDiagram
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" : contains
@@ -24,16 +22,20 @@ erDiagram
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : contains
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : contains
 ```
-[ontology](https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py) |
-[stories](https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py) |
-[themes](https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py) |
-[fields](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py) |
-[keywords](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py)
+
+## totolo - Overview
+
+Inline documentation:
+[ontology](https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py),
+[story](https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py),
+[theme](https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py),
+[field](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py),
+[keyword](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py).
 
 Create an ontology object, for example, by fetching a named version remotely.
 On the ontology object access stories or themes as items using their unique name and bracket notation. 
 Access basic information on the theme or story by accessing the named fields using the get-method.
-Named fields are defined with the `sa` annotation in the story and theme source code linked above at the top of the respective class.
+Named fields are defined with the *sa* annotation in the story and theme source code linked above at the top of the respective class.
 Access minor/major/choice theme entries on a story by iterating over them.
 
 ```python
@@ -58,9 +60,9 @@ text_kw = keyword.str(); print(keyword)
 ```
 
 Although `totolo` can be used to programmatically edit the structure of the ontology, the documentation is
-foremost intended for those who read the ontology to feed it forwards to analytics components.
+foremost intended for those who read the ontology to analyse it in python or feed it forwards.
 
-## Basic Usage
+## totolo - Basic Usage
 
 ```python
     #: import package
@@ -78,7 +80,7 @@ foremost intended for those who read the ontology to feed it forwards to analyti
 <2945 themes, 4475 stories>
 ```
 
-#### Explore the stories
+###### Explore the stories
 
 ```python
     >>> story = ontology["movie: Ran (1985)"]
@@ -92,7 +94,7 @@ Choice Themes   the lust for power
 (...)
 ```
 
-#### Explore the themes
+###### Explore the themes
 
 ```python
     #: go over all the themes and find the ones you want
@@ -108,7 +110,7 @@ b'romantic love'[3]
     (...)
 ```
 
-#### Convert it to a pandas dataframe
+###### Convert it to a pandas dataframe
 
 ```python
     >>> df = ontology.dataframe()
@@ -126,23 +128,23 @@ b'romantic love'[3]
 [52455 rows x 5 columns]
 ```
 
-## Snippets
+## totolo - Snippets
 
-#### List official versioned releases of the ontology, then load one
+###### List official versioned releases of the ontology, then load one
 
 ```python
     print(list(totolo.remote.versions()))
     ontology = totolo.remote.version('v2023.06')
 ```
 
-#### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
+###### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
 
 ```python
     df = ontology['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
     df.to_excel("/mnt/d/repos/themelist-loyalty.xlsx", "loyalty")
 ```
 
-#### Find theme entries in stories according to some criteria, for example, find empty motivations
+###### Find theme entries in stories according to some criteria, for example, find empty motivations
 
 ```python
     empty_motivations = [
@@ -153,7 +155,7 @@ b'romantic love'[3]
     ]
 ```
 
-## Getting Help
+## totolo - Getting Help
 
 If you encounter a bug, please file a minimal reproducible example on
 [GitHub issues](https://github.com/theme-ontology/python-totolo/issues/). For
@@ -161,7 +163,7 @@ feature requests and other matters, please post on the [GitHub discussions
 board](https://github.com/theme-ontology/python-totolo/discussions/).
 
 
-## Code Test Coverage
+###### Files and Code Test Coverage
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
 
