@@ -24,22 +24,27 @@ erDiagram
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : contains
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : contains
 ```
+[ontology](https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py) |
+[stories](https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py) |
+[themes](https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py) |
+[fields](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py) |
+[keywords](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py)
 
-Access 
-[themes](https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py)
-or 
-[stories](https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py) 
-as items on the 
-[ontology](https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py) 
-using their unique name: `theme_or_story = ontology[name]`.
-Access basic information on the theme or story by accessing the named 
-[fields](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py):
-`theme.get("Description")` or `story.get("References")`. 
-Named fields are defined with the `sa` method in the story and theme source code linked above
-at the top of the respective class.
-Access minor/major/choice theme entries on a story by iterating over 
-[keywords](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py):
-`for weight, keyword in story.iter_theme_entries(): ...`.
+Create an ontology object, for example, by fetching a named version remotely.
+On the ontology object access stories or themes as items using their unique name and bracket notation. 
+Access basic information on the theme or story by accessing the named fields using the get-method.
+Named fields are defined with the `sa` annotation in the story and theme source code linked above at the top of the respective class.
+Access minor/major/choice theme entries on a story by iterating over them.
+
+```python
+ontology = totolo.remote('v2025.04')
+theme = ontology['theme_name']
+story = ontology['story_name']
+theme_description = theme.get("Description").str()
+story_references = story.get("References").str()
+for weight, keyword in story.iter_theme_entries():
+    ...
+```
 
 Python's builtin methods `help()` and `dir()` yields useful information on any of these objects.
 The linked source code for them is intended to be readable.
