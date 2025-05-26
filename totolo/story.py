@@ -6,6 +6,10 @@ from .impl.to_entry import TOEntry
 
 
 class TOStory(TOEntry):
+    """
+    A story in the ontology. The attributes defined with "sa" denote named fields that
+    can be accessed using, e.g., `story.get("Title")`.
+    """
     Title = sa("text", required=True)
     Date = sa("date", required=True)
     Description = sa("text")

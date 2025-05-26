@@ -5,6 +5,10 @@ from .impl.to_entry import TOEntry
 
 
 class TOTheme(TOEntry):
+    """
+    A theme in the ontology. The attributes defined with "sa" denote named fields that
+    can be accessed using, e.g., `theme.get("Description")`.
+    """
     Description = sa("text", required=True)
     Parents = sa("list")
     Notes = sa("text")

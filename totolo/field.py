@@ -23,9 +23,15 @@ class TOField(TOFieldBase):
         return "\n".join(parts)
 
     def text_original(self):
+        """
+        Return the original text read from files.
+        """
         return "\n".join(self.source)
 
     def delete_kw(self, keyword):
+        """
+        If this field is a KW field (fieldtype=='kwlist'), delete a keyword in it.
+        """
         assert self.mutable().setup().fieldtype == "kwlist"
         todelete = set()
         for idx, part in enumerate(self.parts):
@@ -36,6 +42,9 @@ class TOField(TOFieldBase):
 
     def update_kw(self, match_keyword, keyword=None,
                   motivation=None, capacity=None, notes=None):
+        """
+        If this field is a KW field (fieldtype=='kwlist'), modify a keyword in it.
+        """
         assert self.mutable().setup().fieldtype == "kwlist"
         for part in self.parts:
             if part.keyword == match_keyword:
@@ -49,6 +58,9 @@ class TOField(TOFieldBase):
                     part.notes = notes
 
     def insert_kw(self, idx=None, keyword="", motivation="", capacity="", notes=""):
+        """
+        If this field is a KW field (fieldtype=='kwlist'), add a keyword to it.
+        """
         assert self.mutable().setup().fieldtype == "kwlist"
         if idx is None:
             idx = len(self.parts)
@@ -63,6 +75,10 @@ class TOField(TOFieldBase):
         )
 
     def find_kw(self, match_keyword):
+        """
+        If this field is a KW field (fieldtype=='kwlist'), find a "Keyword" object by matching
+        the keyword on it. For example, find the theme "love" used in choice themes on story.
+        """
         for part in self.parts:
             if part.keyword == match_keyword:
                 return part
