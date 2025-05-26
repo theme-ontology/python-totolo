@@ -46,15 +46,19 @@ for weight, keyword in story.iter_theme_entries():
     ...
 ```
 
-Python's builtin methods `help()` and `dir()` yields useful information on any of these objects.
-The linked source code for them is intended to be readable.
-For any theme or story objects, doing `obj.text_canonical()` or `obj.print()` yields a canonical 
-text representation of the object and all its contents.
-For the field or keyword objects doing `obj.str()` or `print(obj)` yields
-a text representation of that object.
+Python's builtin methods `help()` and `dir()` yield useful information on any of these objects.
+The above linked source code for them is intended to be readable.
+For any story, theme, field or keyword objects you can obtain a canonical text representation that is the same as it would be if the ontology was written to file.
 
-Although `totolo` can be used to manually edit the structure of the ontology, its primary
-use is to read the ontology and feed it forwards to analytical components.
+```python
+text_s = story.text_canonical(); story.print()
+text_t = theme.text_canonical(); theme.print()
+text_f = field.str(); print(field)
+text_kw = keyword.str(); print(keyword)
+```
+
+Although `totolo` can be used to programmatically edit the structure of the ontology, the documentation is
+foremost intended for those who read the ontology to feed it forwards to analytics components.
 
 ## Basic Usage
 
@@ -74,7 +78,21 @@ use is to read the ontology and feed it forwards to analytical components.
 <2945 themes, 4475 stories>
 ```
 
-### Explore the themes
+#### Explore the stories
+
+```python
+    >>> story = ontology["movie: Ran (1985)"]
+    >>> for weight, theme in story.iter_themes():
+    ...     print(f"{weight:<15} {theme.name}")
+```
+
+``` 
+Choice Themes   betrayal
+Choice Themes   the lust for power
+(...)
+```
+
+#### Explore the themes
 
 ```python
     #: go over all the themes and find the ones you want
@@ -90,21 +108,7 @@ b'romantic love'[3]
     (...)
 ```
 
-### Explore the stories
-
-```python
-    >>> story = ontology["movie: Ran (1985)"]
-    >>> for weight, theme in story.iter_themes():
-    ...     print(f"{weight:<15} {theme.name}")
-```
-
-``` 
-Choice Themes   betrayal
-Choice Themes   the lust for power
-(...)
-```
-
-### Convert it to a pandas dataframe
+#### Convert it to a pandas dataframe
 
 ```python
     >>> df = ontology.dataframe()
@@ -124,26 +128,21 @@ Choice Themes   the lust for power
 
 ## Snippets
 
-### List official versioned releases of the ontology
+#### List official versioned releases of the ontology, then load one
 
 ```python
-    list(totolo.remote.versions())
-```
-
-### Load the v2023.06 release
-
-```python
+    print(list(totolo.remote.versions()))
     ontology = totolo.remote.version('v2023.06')
 ```
 
-### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
+#### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
 
 ```python
     df = ontology['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
     df.to_excel("/mnt/d/repos/themelist-loyalty.xlsx", "loyalty")
 ```
 
-### Find theme entries in stories according to some criteria. For example, find empty motivations
+#### Find theme entries in stories according to some criteria, for example, find empty motivations
 
 ```python
     empty_motivations = [
@@ -166,8 +165,3 @@ board](https://github.com/theme-ontology/python-totolo/discussions/).
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
 
-
-## License
-
-All code in this repository is published with the
-[MIT](https://opensource.org/license/mit/) license.
