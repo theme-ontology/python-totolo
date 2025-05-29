@@ -33,8 +33,8 @@ Inline documentation:
 [keyword](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py).
 
 Create an ontology object, for example, by fetching a named version remotely.
-On the ontology object access stories or themes as items using their unique name and bracket notation. 
-Access basic information on the theme or story by accessing the named fields using the get-method.
+On the ontology object access stories or themes using their unique name and bracket notation. 
+Access basic information on the theme or story by accessing named fields using the get-method.
 Named fields are defined with the *sa* annotation in the story and theme source code linked above at the top of the respective class.
 Access minor/major/choice theme entries on a story by iterating over them.
 
