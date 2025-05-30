@@ -32,7 +32,7 @@ Inline documentation:
 [field](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py),
 [keyword](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py).
 
-Create an ontology object, for example, by fetching a named version remotely.
+Create an ontology object by, for example, fetching a named version remotely.
 On the ontology object access stories or themes using their unique name and bracket notation. 
 Access basic information on the theme or story by accessing named fields using the get-method.
 Named fields are defined with the *sa* annotation in the story and theme source code linked above at the top of the respective class.
@@ -50,7 +50,7 @@ for weight, keyword in story.iter_theme_entries():
 
 Python's builtin methods `help()` and `dir()` yield useful information on any of these objects.
 The above linked source code for them is intended to be readable.
-For any story, theme, field or keyword objects you can obtain a canonical text representation that is the same as it would be if the ontology was written to file.
+For any story, theme, field or keyword objects you can obtain a text representation that is the same as it would be if the ontology was written to file.
 
 ```python
 text_s = story.text_canonical(); story.print()
