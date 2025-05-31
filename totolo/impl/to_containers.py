@@ -1,6 +1,4 @@
 from .to_entry import TOEntry
-from ..theme import TOTheme
-from ..story import TOStory
 
 
 class TOSet(set):
@@ -23,6 +21,8 @@ class TOSet(set):
         motivation=False,
         descriptions=False,
     ):
+        from ..theme import TOTheme  # pylint: disable=cyclic-import
+        from ..story import TOStory  # pylint: disable=cyclic-import
         subset_stories = [x for x in self if isinstance(x, TOStory)]
         subset_themes = [x for x in self if isinstance(x, TOTheme)]
         for obj in self:

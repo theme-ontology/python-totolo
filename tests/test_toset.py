@@ -1,5 +1,5 @@
 import totolo
-from totolo.impl.to_dict import TOSet
+from totolo.impl.to_containers import TOSet
 
 
 class TestTOSet:
