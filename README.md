@@ -6,10 +6,7 @@
  
 # totolo
 
-This repository contains a Python package, totolo, for working with data from the Theme Ontology [theming repository](https://github.com/theme-ontology/theming/).
-
-
-## Installation
+A Python package for working with data from the Theme Ontology [theming repository](https://github.com/theme-ontology/theming/).
 
 ```
 pip install totolo
@@ -17,8 +14,55 @@ pip install totolo
 
 Or clone this repository and copy the `totolo` directory wherever you need it. No package dependencies are required.
 
+```mermaid
+erDiagram
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" : contains
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : contains
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : contains
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : contains
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : contains
+```
 
-## Basic Usage
+## totolo - Overview
+
+Inline documentation:
+[ontology](https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py),
+[story](https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py),
+[theme](https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py),
+[field](https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py),
+[keyword](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py).
+
+Create an ontology object by, for example, fetching a named version remotely.
+On the ontology object access stories or themes using their unique name and bracket notation. 
+Access basic information on the theme or story by accessing named fields using the get-method.
+Named fields are defined with the *sa* annotation in the story and theme source code linked above at the top of the respective class.
+Access minor/major/choice theme entries on a story by iterating over them.
+
+```python
+ontology = totolo.remote('v2025.04')
+theme = ontology['theme_name']
+story = ontology['story_name']
+theme_description = theme.get("Description").str()
+story_references = story.get("References").str()
+for weight, keyword in story.iter_theme_entries():
+    ...
+```
+
+Python's builtin methods `help()` and `dir()` yield useful information on any of these objects.
+The above linked source code for them is intended to be readable.
+For any story, theme, field or keyword objects you can obtain a text representation that is the same as it would be if the ontology was written to file.
+
+```python
+text_s = story.text_canonical(); story.print()
+text_t = theme.text_canonical(); theme.print()
+text_f = field.str(); print(field)
+text_kw = keyword.str(); print(keyword)
+```
+
+Although `totolo` can be used to programmatically edit the structure of the ontology, the documentation is
+foremost intended for those who read the ontology to analyse it in python or feed it forwards.
+
+## totolo - Basic Usage
 
 ```python
     #: import package
@@ -36,26 +80,10 @@ Or clone this repository and copy the `totolo` directory wherever you need it. N
 <2945 themes, 4475 stories>
 ```
 
-### Explore the themes
+###### Explore the stories
 
 ```python
-    #: go over all the themes and find the ones you want
-    >>> for theme in ontology.themes():
-    ...     if "romantic love" in theme.name:
-    ...         print(theme)
-b'personal freedom vs. romantic love'[3]
-b'romantic love'[3]
-
-    #: check the definition of a theme
-    >>> love = ontology.theme["love"]
-    >>> love.print()
-    (...)
-```
-
-### Explore the stories
-
-```python
-    >>> story = ontology.story["movie: Ran (1985)"]
+    >>> story = ontology["movie: Ran (1985)"]
     >>> for weight, theme in story.iter_themes():
     ...     print(f"{weight:<15} {theme.name}")
 ```
@@ -66,7 +94,23 @@ Choice Themes   the lust for power
 (...)
 ```
 
-### Convert it to a pandas dataframe
+###### Explore the themes
+
+```python
+    #: go over all the themes and find the ones you want
+    >>> for theme in ontology.themes():
+    ...     if "romantic love" in theme.name:
+    ...         print(theme)
+b'personal freedom vs. romantic love'[3]
+b'romantic love'[3]
+
+    #: check the definition of a theme
+    >>> love = ontology["love"]
+    >>> love.print()
+    (...)
+```
+
+###### Convert it to a pandas dataframe
 
 ```python
     >>> df = ontology.dataframe()
@@ -84,28 +128,23 @@ Choice Themes   the lust for power
 [52455 rows x 5 columns]
 ```
 
-## Snippets
+## totolo - Snippets
 
-### List official versioned releases of the ontology
-
-```python
-    list(totolo.remote.versions())
-```
-
-### Load the v2023.06 release
+###### List official versioned releases of the ontology, then load one
 
 ```python
+    print(list(totolo.remote.versions()))
     ontology = totolo.remote.version('v2023.06')
 ```
 
-### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
+###### Create an excel sheet with all the usages of the theme "loyalty" as well as any child theme of the same
 
 ```python
-    df = ontology.theme['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
+    df = ontology['loyalty'].descendants().dataframe(motivation=True, descriptions=True)
     df.to_excel("/mnt/d/repos/themelist-loyalty.xlsx", "loyalty")
 ```
 
-### Find theme entries in stories according to some criteria. For example, find empty motivations
+###### Find theme entries in stories according to some criteria, for example, find empty motivations
 
 ```python
     empty_motivations = [
@@ -116,7 +155,7 @@ Choice Themes   the lust for power
     ]
 ```
 
-## Getting Help
+## totolo - Getting Help
 
 If you encounter a bug, please file a minimal reproducible example on
 [GitHub issues](https://github.com/theme-ontology/python-totolo/issues/). For
@@ -124,12 +163,7 @@ feature requests and other matters, please post on the [GitHub discussions
 board](https://github.com/theme-ontology/python-totolo/discussions/).
 
 
-## Code Test Coverage
+###### Files and Code Test Coverage
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
 
-
-## License
-
-All code in this repository is published with the
-[MIT](https://opensource.org/license/mit/) license.
