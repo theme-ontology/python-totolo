@@ -59,6 +59,12 @@ class TOStory(TOEntry):
         """
         return self.get("Title").text_canonical_contents().strip()
 
+    def text(self):
+        """
+        A nicely formatted text representation of the story.
+        """
+        return self.text_canonical()
+
     def ancestors(self) -> 'Iterable[TOStory]':
         """
         Return a TOCollection set with all stories containing this story as a component.

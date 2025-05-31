@@ -16,6 +16,12 @@ class TOTheme(TOEntry):
     References = sa("list")
     Aliases = sa("list")
 
+    def text(self):
+        """
+        A nicely formatted text representation of the theme.
+        """
+        return self.text_canonical()
+
     def ancestors(self) -> 'Iterable[TOTheme]':
         """
         Return a TOCollection set with all themes that contain this story beneeth it in
