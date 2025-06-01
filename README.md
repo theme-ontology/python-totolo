@@ -3,7 +3,7 @@
 [![Life cycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![downloads](https://img.shields.io/pypi/dm/totolo.svg)](https://pypistats.org/packages/totolo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
- 
+
 # totolo
 
 A Python package for working with data from the Theme Ontology [theming repository](https://github.com/theme-ontology/theming/).
@@ -16,11 +16,13 @@ Or clone this repository and copy the `totolo` directory wherever you need it. N
 
 ```mermaid
 erDiagram
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" : contains
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : contains
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : contains
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : contains
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : contains
+    direction LR
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" : "o[...]"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : "o[...]"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : ".get(...)"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : ".get(...)"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : ".iter_theme_entries()"
+    "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" ||--|| "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : "(references)"
 ```
 
 ## totolo - Overview
@@ -33,9 +35,9 @@ Inline documentation:
 [keyword](https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py).
 
 Create an ontology object by, for example, fetching a named version remotely.
-On the ontology object access stories or themes using their unique name and bracket notation. 
+On the ontology object access stories or themes using their unique name and bracket notation.
 Access basic information on the theme or story by accessing named fields using the get-method.
-Named fields are defined with the *sa* annotation in the story and theme source code linked above at the top of the respective class.
+Named fields are defined with the *"sa"* annotation in the story and theme source code linked above at the top of the respective class.
 Access minor/major/choice theme entries on a story by iterating over them.
 
 ```python
@@ -53,10 +55,10 @@ The above linked source code for them is intended to be readable.
 For any story, theme, field or keyword objects you can obtain a text representation that is the same as it would be if the ontology was written to file.
 
 ```python
-text_s = story.text_canonical(); story.print()
-text_t = theme.text_canonical(); theme.print()
-text_f = field.str(); print(field)
-text_kw = keyword.str(); print(keyword)
+_ = story.text(); story.print()
+_ = theme.text(); theme.print()
+_ = field.str(); print(field)
+_ = keyword.str(); print(keyword)
 ```
 
 Although `totolo` can be used to programmatically edit the structure of the ontology, the documentation is
@@ -88,7 +90,7 @@ foremost intended for those who read the ontology to analyse it in python or fee
     ...     print(f"{weight:<15} {theme.name}")
 ```
 
-``` 
+```
 Choice Themes   betrayal
 Choice Themes   the lust for power
 (...)
@@ -166,4 +168,3 @@ board](https://github.com/theme-ontology/python-totolo/discussions/).
 ###### Files and Code Test Coverage
 
 [![codecov](https://codecov.io/gh/theme-ontology/python-totolo/branch/main/graphs/icicle.svg?token=1Z39E9IE2W)](https://codecov.io/gh/theme-ontology/python-totolo)
-

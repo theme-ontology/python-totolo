@@ -208,6 +208,32 @@ class TestFeatures:
         assert isinstance(story, TOStory)
         assert isinstance(theme, TOTheme)
 
+    def test_story_themes(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        story = ontology.story["movie: Frankenstein (1931)"]
+        minor = {
+            'body snatching', 'coping with the death of someone', 'electricity',
+            "pride in one's own creation", 'scientist occupation', 'unrequited love',
+        }
+        major = {
+            'engaged couple', 'hubris', 'mad scientist stereotype', 'maker and monster',
+            'obsession', 'playing God with nature', 'pride goes before a fall', 'undead being',
+            'what it is like to be different',
+        }
+        assert {s.name for s in story.themes("minor")} == minor
+        assert {s.name for s in story.themes("Minor Themes")} == minor
+        assert {s.name for s in story.themes(["major", "minor"])} == minor | major
+        assert {s.name for s in story.themes({"major", "minor"})} == minor | major
+        assert {s.name for s in story.themes()} == minor | major
+
+    def test_story_to_text(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        assert isinstance(ontology.story["movie: Frankenstein (1931)"].text(), str)
+
+    def test_theme_to_text(self):
+        ontology = totolo.files("tests/data/sample-2023.07.23")
+        assert isinstance(ontology.theme["romantic love"].text(), str)
+
     def test_story_to_theme(self):
         ontology = totolo.files("tests/data/sample-2023.07.23")
         story = ontology.story["movie: Frankenstein (1931)"]

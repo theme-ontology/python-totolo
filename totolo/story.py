@@ -1,11 +1,16 @@
 import html
 import re
 
-from .impl.to_object import sa
+from .impl.to_containers import TOSet
 from .impl.to_entry import TOEntry
+from .impl.to_object import sa
 
 
 class TOStory(TOEntry):
+    """
+    A story in the ontology. The attributes defined with "sa" denote named fields that
+    can be accessed using, e.g., `story.get("Title")`.
+    """
     Title = sa("text", required=True)
     Date = sa("date", required=True)
     Description = sa("text")
@@ -55,6 +60,12 @@ class TOStory(TOEntry):
         """
         return self.get("Title").text_canonical_contents().strip()
 
+    def text(self):
+        """
+        A nicely formatted text representation of the story.
+        """
+        return self.text_canonical()
+
     def ancestors(self) -> 'Iterable[TOStory]':
         """
         Return a TOCollection set with all stories containing this story as a component.
@@ -89,6 +100,22 @@ class TOStory(TOEntry):
         for weight, part in self.iter_theme_entries():
             theme = ontology.theme[part.keyword]
             yield weight, theme
+
+    def themes(self, weight=None):
+        """
+        Return a list of all themes by weight.
+        :param weight: "choice", "major", or "minor". If None, admit all.
+        """
+        weight = weight or []
+        if isinstance(weight, str):
+            weight = [weight]
+        def shorten(w):
+            return w.split(" ", 1)[0].lower()
+        weight = {shorten(w) for w in weight}
+        return TOSet(
+            t for w, t in self.iter_themes()
+            if not weight or shorten(w) in weight
+        )
 
     def verbose_description(self) -> str:
         """

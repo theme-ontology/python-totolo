@@ -7,7 +7,7 @@ from collections import OrderedDict, defaultdict
 from ..story import TOStory
 from ..theme import TOTheme
 from .to_object import TOObject, a
-from .to_dict import TODict
+from .to_containers import TODict
 
 
 class TOBase(TOObject):

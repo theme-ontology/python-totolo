@@ -5,12 +5,22 @@ from .impl.to_entry import TOEntry
 
 
 class TOTheme(TOEntry):
+    """
+    A theme in the ontology. The attributes defined with "sa" denote named fields that
+    can be accessed using, e.g., `theme.get("Description")`.
+    """
     Description = sa("text", required=True)
     Parents = sa("list")
     Notes = sa("text")
     Examples = sa("text")
     References = sa("list")
     Aliases = sa("list")
+
+    def text(self):
+        """
+        A nicely formatted text representation of the theme.
+        """
+        return self.text_canonical()
 
     def ancestors(self) -> 'Iterable[TOTheme]':
         """
