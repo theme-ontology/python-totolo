@@ -20,7 +20,7 @@ erDiagram
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : "ontology[...]"
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "theme.get(...)"
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "story.get(...)"
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : "story.iter_theme_entries()"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--o{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>keyword</A>)" : "story.iter_theme_entries()"
 ```
 
 ## totolo - Overview
