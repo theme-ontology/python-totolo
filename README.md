@@ -22,7 +22,7 @@ erDiagram
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "story.get(<i>field_name</i>)"
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--o{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>kw</A>)" : "story.iter_theme_entries()"
     "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>kw</A>)" 1--1 "<i>theme.name</i>" : "kw.keyword"
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" 1--1 "<i>metadata like 'Title', 'Description', 'References', etc.</i>": ".str()"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" 1--1 "<i>metadata like 'Title', 'Description', 'References', etc.</i>": "field.str()"
 ```
 
 ## totolo - Overview
