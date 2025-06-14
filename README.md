@@ -16,12 +16,13 @@ Or clone this repository and copy the `totolo` directory wherever you need it. N
 
 ```mermaid
 erDiagram
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" : "ontology[<i><smalletheme.name</i>]"
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : "ontology[story.name]"
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "theme.get(name_of_field)"
-    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "story.get(name_of_field)"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" : "ontology[<i>story.name</i>]"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/ontology.py'>ontology</A>" ||--o{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" : "ontology[<i>theme.name</i>]"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/theme.py'>theme</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "theme.get(<i>field_name</i>)"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--|{ "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" : "story.get(<i>field_name</i>)"
     "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/story.py'>story</A>" ||--o{ "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>kw</A>)" : "story.iter_theme_entries()"
-    "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>kw</A>)" 1--1 "theme.name" : "kw.keyword"
+    "(weight, <A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/keyword.py'>kw</A>)" 1--1 "<i>theme.name</i>" : "kw.keyword"
+    "<A href='https://github.com/theme-ontology/python-totolo/blob/main/totolo/field.py'>field</A>" 1--1 "<i>metadata like 'Title', 'Description', 'References', etc.</i>": ".str()"
 ```
 
 ## totolo - Overview
