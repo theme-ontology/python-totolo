@@ -124,7 +124,7 @@ def get_changes(rows, ontology):
         else:
             raise ValueError(f"Unexpected row configuration: {row}")
         if row.rtheme and row.rtheme not in ontology.theme:
-            new_themes[row.rtheme] = row.theme
+            new_themes[row.rtheme].append(row.theme)
 
     return newentries, replacements, deletions, new_themes
 
@@ -152,7 +152,13 @@ def report_changes(newentries, replacements, deletions, new_themes):
     debugprint(dict(deletions))
 
     for newtheme, previous in new_themes.items():
-        log.warning("Undefined New Theme: %s CHANGED FROM %s", newtheme, sorted(set(previous)))
+        print(f"Undefined New Theme: {newtheme} CHANGED FROM {sorted(set(previous))}")
+
+    print(f"::Summary:: {len(newentries)} new entries, "
+          f"{len(replacements)} replacements, and "
+          f"{len(deletions)} deletions. "
+          f"{len(new_themes)} newly coined themes."
+    )
 
 
 def merge_deletions(ontology, deletions, replacements):
@@ -254,5 +260,7 @@ def main():
     mergelist(args.path_changes, args.path_ontology, args.dryrun)
 
 
+# example command:
+# python totolo/util/mergelist.py --dryrun /mnt/d/repos/list.xlsx ../theming-master/notes/
 if __name__ == "__main__":
     main()
