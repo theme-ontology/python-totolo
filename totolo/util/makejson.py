@@ -1,10 +1,8 @@
 import argparse
 import json
-import re
-import sys
 from collections import defaultdict
 
-import totolo
+import totolo.lib.argparse
 
 
 THEME_FIELDS_OFFICIAL = {
@@ -110,30 +108,15 @@ def main():
     Example:
         "to-makejson v2025.04 -tsc > ontology_v202404.json"
     """
-    version_patt = re.compile("v\\d{4}\\.\\d{2}$")
-    parser = argparse.ArgumentParser(
-        description=(
-            "Output a version of the ontology as json. "
-            "Use -t -s -c to select themes, stories, and/or collections respectively. "
-            "If none of these flags are given, all will be included. "
-        ),
-        epilog=main.__doc__
-    )
-    parser.add_argument("source", nargs="*", help=
-        "Paths to include or version to download. "
-        "If a single argument matching tag pattern vYYYY.MM is given, "
-        "it will be interpreted as a version. "
-        "Otherwise the arguments will be treated as one or more local paths. "
-    )
-    parser.add_argument("-p", "--path", help="Path to the ontology.")
+    parser = totolo.lib.argparse.parser((
+        "Output a version of the ontology as json. "
+        "Use -t -s -c to select themes, stories, and/or collections respectively. "
+        "If none of these flags are given, all will be included. "
+    ), main.__doc__)
     parser.add_argument("--verbosity", default="official", help=
         "Which fields to include. "
         "'official': (default) include fields for official release. "
         "'all': include all fields. "
-    )
-    parser.add_argument(
-        "-v", "--version", help="Named version to use. If not specified the latest version of the "
-        "master branch will be used."
     )
     parser.add_argument("-t", action='store_true', help="Include themes.")
     parser.add_argument("-s", action='store_true', help="Include stories.")
@@ -144,25 +127,11 @@ def main():
         "component entries on the collections instead. "
     )
     args = parser.parse_args()
-
-    if sum(1 for x in [args.path, args.version, args.source] if x) > 1:
-        sys.stderr.write("Can specify at most one of --path, --version, or positional argument.")
+    ontology = totolo.lib.argparse.ontology(args)
+    if not ontology:
         return
-    if args.source:
-        if len(args.source) == 1 and version_patt.match(args.source[0]):
-            ontology = totolo.remote.version(args.source[0])
-        else:
-            ontology = totolo.files(args.source)
-    elif args.path:
-        ontology = totolo.files(args.path)
-    elif args.version:
-        ontology = totolo.remote.version(args.version)
-    else:
-        ontology = totolo.remote()
-
     if args.reorg:
         ontology.organize_collections()
-
     if not any([args.t, args.s, args.c]):
         dd = make_json(ontology, verbosity=args.verbosity)
     else:
@@ -173,7 +142,6 @@ def main():
             with_collections=args.c,
             verbosity=args.verbosity,
         )
-
     try:
         print(json.dumps(dd, indent=4, ensure_ascii=False))
     except BrokenPipeError:  # pragma: no cover
