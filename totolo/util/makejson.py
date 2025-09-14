@@ -108,7 +108,7 @@ def main():
     Example:
         "to-makejson v2025.04 -tsc > ontology_v202404.json"
     """
-    parser = totolo.lib.argparse.parser((
+    parser = totolo.lib.argparse.get_parser((
         "Output a version of the ontology as json. "
         "Use -t -s -c to select themes, stories, and/or collections respectively. "
         "If none of these flags are given, all will be included. "
@@ -127,7 +127,7 @@ def main():
         "component entries on the collections instead. "
     )
     args = parser.parse_args()
-    ontology = totolo.lib.argparse.ontology(args)
+    ontology = totolo.lib.argparse.get_ontology(args)
     if not ontology:
         return
     if args.reorg:
