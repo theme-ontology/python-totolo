@@ -110,7 +110,7 @@ class TOParser:
                         state_idx = ramp.index(part)
                         if state_idx > 3:
                             raise AssertionError(f"Unexpected {part} in: {row}")
-                        close_bracket = ramp[state_idx + 3]
+                        close_bracket = ramp[state_idx + 3] if state_idx > 0 else ""
                 else:
                     acc.append(part)
 
