@@ -1,8 +1,10 @@
 import pytest
 
 from totolo.impl.to_entry import TOEntry
+from totolo.impl.to_parser import TOParser
 from totolo.story import TOStory
 from totolo.theme import TOTheme
+
 
 STORY_DATA = {
     "Title": "foo title",
@@ -72,6 +74,22 @@ bar
         assert list(entry.iter_descendant_names()) == ["foo"]
         with pytest.raises(KeyError):
             del entry["foo"]
+
+    def test_validate_entries(self):
+        bad_lines = """
+goofy <broken [line] one
+goofy }broken [line] two
+""".strip()
+        entry = TOParser.make_story(f"""
+foo
+===
+:: Choice Themes
+foo <bar> [baz] {{widget}}
+{bad_lines}
+""".splitlines())
+        warnings = list(entry.validate_keywords())
+        for bad_line in bad_lines.splitlines():
+            assert any(bad_line in x for x in warnings)
 
 
 class TestTOStory:

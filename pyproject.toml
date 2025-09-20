@@ -24,6 +24,7 @@ to-mergefiles = "totolo.util.mergefiles:main"
 to-mergelist = "totolo.util.mergelist:main"
 to-makelist = "totolo.util.makelist:main"
 to-makejson = "totolo.util.makejson:main"
+to-validate = "totolo.util.validate:main"
 
 [tool.pylint.BASIC]
 good-names = "a,sa"

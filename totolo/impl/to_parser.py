@@ -105,12 +105,15 @@ class TOParser:
                         state_idx = 0
                         close_bracket = ""
                     elif close_bracket:
-                        raise AssertionError(f"Missing '{close_bracket}' in: {row}")
+                        raise AssertionError(
+                            f"Bad bracketing, found '{part}' when expecting '{close_bracket}', "
+                            f"in: {line}"
+                        )
                     else:
                         state_idx = ramp.index(part)
                         if state_idx > 3:
-                            raise AssertionError(f"Unexpected {part} in: {row}")
-                        close_bracket = ramp[state_idx + 3]
+                            raise AssertionError(f"Unexpected {part} in: {line}")
+                        close_bracket = ramp[state_idx + 3] if state_idx > 0 else ""
                 else:
                     acc.append(part)
 
