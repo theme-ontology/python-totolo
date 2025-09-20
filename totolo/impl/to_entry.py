@@ -119,11 +119,12 @@ class TOEntry(TOObject):
         from .to_parser import TOParser  # pylint: disable=cyclic-import
         for field in self.fields.values():
             if field.fieldtype == "kwlist":
-                data_iter = filter(None, (x.strip() for x in field.source[1:]))
-                try:
-                    list(TOParser.iter_kwitems_strict(data_iter))
-                except AssertionError as exc:
-                    yield f"In {self.name}: {exc.args[0]}"
+                for line in (x.strip() for x in field.source[1:]):
+                    if line:
+                        try:
+                            list(TOParser.iter_kwitems_strict([line]))
+                        except AssertionError as exc:
+                            yield f"In {self.name}: {exc.args[0]}"
 
     def text_canonical(self):
         lines = [self.name, "=" * len(self.name), ""]
