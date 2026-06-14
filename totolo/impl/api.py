@@ -1,4 +1,5 @@
 import json
+import re
 import urllib.request
 import functools
 
@@ -7,6 +8,16 @@ from ..ontology import ThemeOntology
 
 DEFAULT_URL = "https://github.com/theme-ontology/theming/"
 API_URL = "https://api.github.com/repos/theme-ontology/theming/"
+
+
+def _is_ontology_release(tag):
+    """Whether a release tag is a dated ontology snapshot (e.g. v2025.04).
+
+    v0.* tags are early totolo package releases, not ontology versions, and
+    cannot be built into a corpus -- exclude them from version listings.
+    """
+    match = re.match(r"v?(\d+)", tag)
+    return not (match and int(match.group(1)) == 0)
 
 
 def files(paths=None):
@@ -61,7 +72,9 @@ class TORemote:
 
     def versions(self):
         for item in self._get("releases"):
-            yield item["tag_name"], item["name"]
+            tag = item["tag_name"]
+            if _is_ontology_release(tag):
+                yield tag, item["name"]
 
     @functools.lru_cache
     def _get(self, endpoint):
