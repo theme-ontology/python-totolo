@@ -68,7 +68,7 @@ class TestIO:
         precache_remote_resources()
         versions = [v for v, _ in totolo.remote.versions()]
         assert "v2023.06" in versions
-        assert "v0.3.3" in versions
+        assert "v0.3.3" not in versions  # v0.* package tags are excluded from listings
         with pytest.raises(ValueError):
             totolo.remote.version("gobbledygook")
 
