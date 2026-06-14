@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from collections import defaultdict
 
 import totolo.lib.argparse
@@ -143,7 +144,9 @@ def main():
             verbosity=args.verbosity,
         )
     try:
-        print(json.dumps(dd, indent=4, ensure_ascii=False))
+        sys.stdout.buffer.write(json.dumps(dd, indent=4, ensure_ascii=False).encode("utf-8"))
+        sys.stdout.buffer.write(b"\n")
+        sys.stdout.buffer.flush()
     except BrokenPipeError:  # pragma: no cover
         pass
 

@@ -1,4 +1,5 @@
 import argparse
+import sys
 from collections import defaultdict
 
 import totolo
@@ -256,6 +257,7 @@ def main():
         help="Read and report on stdout, but do not write changes to ontology.",
         action="store_true",
     )
+    sys.stdout.reconfigure(encoding='utf-8')
     args = parser.parse_args()
     mergelist(args.path_changes, args.path_ontology, args.dryrun)
 
