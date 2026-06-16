@@ -19,8 +19,6 @@ STORY_FORMATS = frozenset({
     "play",
     "prose",
     "game",
-    "opera",
-    "nonfiction",
 })
 
 
