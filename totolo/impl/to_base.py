@@ -10,6 +10,20 @@ from .to_object import TOObject, a
 from .to_containers import TODict
 
 
+#: Permitted values for the optional "Story Format" field on a story. This is a
+#: high-level, objective classification of the medium (not genre). The field may
+#: be omitted entirely; if present it must be one of these values.
+STORY_FORMATS = frozenset({
+    "film",
+    "tv",
+    "play",
+    "prose",
+    "game",
+    "opera",
+    "nonfiction",
+})
+
+
 class TOBase(TOObject):
     story = a(TODict)
     theme = a(TODict)
@@ -159,6 +173,7 @@ class TOBase(TOObject):
     def validate(self):
         yield from self._impl.validate_entries()
         yield from self._impl.validate_storythemes()
+        yield from self._impl.validate_storyformat()
         yield from self._impl.validate_cycles()
 
     def write(self, prefix=None, cleaned=False, verbose=False):
@@ -298,6 +313,15 @@ class TOImpl:
                     if kwfield.keyword not in self.o.theme:
                         yield (f"{story.name}: Undefined '{weight} theme' with "
                                f"name '{kwfield.keyword}'")
+
+    def validate_storyformat(self):
+        """Detect stories whose 'Story Format' is set to an unrecognized value."""
+        for story in self.o.stories():
+            value = str(story.get("Story Format")).strip()
+            if value and value not in STORY_FORMATS:
+                allowed = ", ".join(sorted(STORY_FORMATS))
+                yield (f"{story.name}: Unrecognized 'story format' "
+                       f"'{value}' (expected one of: {allowed})")
 
     def validate_cycles(self):
         """Detect cycles (stops after first cycle encountered)."""

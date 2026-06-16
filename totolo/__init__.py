@@ -5,7 +5,7 @@ from totolo.impl.api import TORemote, empty, files
 
 
 remote = TORemote()
-__version__ = "2.1.3"
+__version__ = "2.2.0"
 __ALL__ = [
     empty,
     files,

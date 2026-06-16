@@ -1,0 +1,43 @@
+movie: Good Format (2000)
+=========================
+
+:: Title
+Good Format
+
+:: Date
+2000-01-01
+
+:: Description
+A story with a recognized story format.
+
+:: Story Format
+film
+
+
+movie: Bad Format (2001)
+========================
+
+:: Title
+Bad Format
+
+:: Date
+2001-01-01
+
+:: Description
+A story with an unrecognized story format.
+
+:: Story Format
+graphic novel
+
+
+movie: No Format (2002)
+=======================
+
+:: Title
+No Format
+
+:: Date
+2002-01-01
+
+:: Description
+A story that omits the story format field entirely.

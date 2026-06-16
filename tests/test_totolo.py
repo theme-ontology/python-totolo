@@ -406,6 +406,17 @@ class TestValidation:
         warnings = list(ontology._impl.validate_entries())
         assert any("Multiple TOStory with name" in x for x in warnings)
 
+    def test_storyformat_warning(self):
+        ontology = totolo.files("tests/data/storyformat.st.txt")
+        warnings = list(ontology._impl.validate_storyformat())
+        assert any("Bad Format" in x and "graphic novel" in x for x in warnings)
+        assert not any("Good Format" in x for x in warnings)
+        assert not any("No Format" in x for x in warnings)
+        # surfaces through the public validate() entry point as well
+        assert any(
+            "Unrecognized 'story format'" in x for x in ontology.validate()
+        )
+
 
 class TestOperations:
     def test_equality(self):

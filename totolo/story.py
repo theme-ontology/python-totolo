@@ -21,6 +21,7 @@ class TOStory(TOEntry):
     Collections = sa("list")
     Component_Stories = sa("list")
     Related_Stories = sa("list")
+    Story_Format = sa("text")
     Choice_Themes = sa("kwlist")
     Major_Themes = sa("kwlist")
     Minor_Themes = sa("kwlist")
