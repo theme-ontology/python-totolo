@@ -16,7 +16,7 @@ from .to_containers import TODict
 STORY_FORMATS = frozenset({
     "film",
     "tv",
-    "play",
+    "stage",
     "prose",
     "game",
 })
