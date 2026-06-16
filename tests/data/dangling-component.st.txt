@@ -1,0 +1,28 @@
+movie: Real Movie (2000)
+========================
+
+:: Title
+Real Movie
+
+:: Date
+2000-01-01
+
+:: Description
+A real movie that exists as a story.
+
+
+Collection: Test Collection
+===========================
+
+:: Title
+Test Collection
+
+:: Date
+2000
+
+:: Description
+A collection that lists one real story and one missing story.
+
+:: Component Stories
+movie: Real Movie (2000)
+movie: Missing Movie (1999)
