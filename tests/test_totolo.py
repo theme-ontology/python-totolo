@@ -406,6 +406,19 @@ class TestValidation:
         warnings = list(ontology._impl.validate_entries())
         assert any("Multiple TOStory with name" in x for x in warnings)
 
+    def test_component_warning(self):
+        ontology = totolo.files("tests/data/dangling-component.st.txt")
+        warnings = list(ontology._impl.validate_components())
+        # The missing component story is flagged...
+        assert any(
+            "Undefined 'component story'" in x and "movie: Missing Movie (1999)" in x
+            for x in warnings
+        )
+        # ...while the component story that exists is not.
+        assert not any("movie: Real Movie (2000)" in x for x in warnings)
+        # And it surfaces through the top-level validate().
+        assert any("Undefined 'component story'" in x for x in ontology.validate())
+
 
 class TestOperations:
     def test_equality(self):
