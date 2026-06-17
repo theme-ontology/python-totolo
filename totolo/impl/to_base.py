@@ -172,6 +172,7 @@ class TOBase(TOObject):
         yield from self._impl.validate_entries()
         yield from self._impl.validate_storythemes()
         yield from self._impl.validate_storyformat()
+        yield from self._impl.validate_components()
         yield from self._impl.validate_cycles()
 
     def write(self, prefix=None, cleaned=False, verbose=False):
@@ -320,6 +321,13 @@ class TOImpl:
                 allowed = ", ".join(sorted(STORY_FORMATS))
                 yield (f"{story.name}: Unrecognized 'story format' "
                        f"'{value}' (expected one of: {allowed})")
+    def validate_components(self):
+        """Detect component stories of collections that reference undefined stories."""
+        for story in self.o.stories():
+            for component_name in story.get("Component Stories"):
+                if component_name not in self.o.story:
+                    yield (f"{story.name}: Undefined 'component story' with "
+                           f"name '{component_name}'")
 
     def validate_cycles(self):
         """Detect cycles (stops after first cycle encountered)."""
