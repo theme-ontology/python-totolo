@@ -26,6 +26,7 @@ STORY_FIELDS_OFFICIAL = {
     "description": "always",
     "references": "always",
     "related stories": "ifset",
+    "story format": "ifset",
     "title": "always",
     "variation": "ifset",
     "themes": "always",
